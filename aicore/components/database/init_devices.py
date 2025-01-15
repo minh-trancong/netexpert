@@ -1,7 +1,7 @@
 import pandas as pd
 
 from aicore.components.database.database import *
-from norm_data import norm_data
+from aicore.components.database.utils.norm_data import norm_data
 
 
 dt = pd.read_csv('../../data.csv')

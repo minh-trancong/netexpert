@@ -3,7 +3,7 @@ import google.generativeai as genai
 
 class BaseAgent(object):
     def __init__(self, role, description, llm=None):
-        if not llm:
+        if llm != None:
             self.llm = llm
         else:
             self.init_llm()
@@ -25,3 +25,6 @@ class BaseAgent(object):
             generation_config=generation_config,
         )
         self.llm = model
+
+agent = BaseAgent(role="", description="")
+print(agent.llm)

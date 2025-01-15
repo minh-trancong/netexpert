@@ -26,5 +26,8 @@ class Device:
     img_url: str
     embedding: list[float]
 
+    def __post_init__(self):
+        self.id = self.id.lower()
+        self.device_type = self.device_type.lower()
     def to_dict(self) -> dict:
         return asdict(self)

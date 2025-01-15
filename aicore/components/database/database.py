@@ -90,6 +90,23 @@ def get_device_by_id(id):
     cursor.close()
     return device
 
+def get_device_by_types(device_types):
+    if not device_types:
+        return []
+
+    cursor = connection.cursor()
+
+    placeholders = ', '.join(['%s'] * len(device_types))
+    query = f"SELECT id FROM devices WHERE device_type IN ({placeholders})"
+
+    cursor.execute(query, tuple(device_types))
+
+    results = cursor.fetchall()
+
+    cursor.close()
+
+    return [row[0] for row in results]
+
 
 def query_by_vector(query):
     query_emb = get_embedding_query(query)
