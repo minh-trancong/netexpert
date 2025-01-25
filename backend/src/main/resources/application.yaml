@@ -1,0 +1,32 @@
+server:
+  port: 8888
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: netexpert
+
+  datasource:
+    url: jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+    username: postgres.xrnjiwuvobgqdzscqgqm
+    password: Dd150805
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: SupabaseConnectionPool
+
+  jpa: 
+    hibernate: 
+      ddl-auto: update
+    show-sql: true
+    
+jwt:
+  signerKey: "dB5gF2dH3rvCx43xSkLxJzv6Tp6hnVaMaY93srTNhfDx1g0Q0Y48y/7/L3/c/qv5"
+
+local:
+  AI_HTTP: "https://netexpert-aicore.onrender.com"
