@@ -1,0 +1,3 @@
+[submodule "netexpert-frontend"]
+	path = netexpert-frontend
+	url = https://github.com/anotheryearwasted/netexpert-frontend
