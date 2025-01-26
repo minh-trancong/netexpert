@@ -1,0 +1,165 @@
+import type { BlogResponse } from "@/app/types/blog";
+
+// Import JSON data and assert its type
+const mockData = {
+  total: 17,
+  page: 1,
+  limit: 100,
+  blogs: [
+    {
+      "blog_id": 38,
+      "title": "Exploring Montenegro's Fixed Networks Transformation in 2024 Who's Leading the Charge",
+      "summary": "Discover the latest insights into me's internet performance during 2024. Telekom leads the rankings with impressive metrics, while MTEL shows notable progress. Comprehensive analysis based on nPerf data for fixe.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2025/01/ME-fixe-2024-header_blog-768x523.png",
+      "created_at": "2025-01-13 23:00:00+00",
+      "category": ""
+    },
+    {
+      "blog_id": 39,
+      "title": "Exploring Nigeria's Mobile Networks in 2024: Who's Leading the Charge?",
+      "summary": "Discover the latest insights into Nigeria's internet performance during 2023-2024. MTN leads the rankings with impressive metrics, while Airtel and Glo show notable progress. Comprehensive analysis based on nPerf data for mobile.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2025/01/NG-mobile-2024-header_blog-1-768x523.png",
+      "created_at": "2025-01-13 23:00:00+00",
+      "category": ""
+    },
+    {
+      "blog_id": 40,
+      "title": "Exploring Norway's Fixed Networks Transformation in 2024 Who's Leading the Charge",
+      "summary": "Discover the latest insights into Norway's internet performance during 2024. Sognenett leads the rankings with impressive metrics, while GlobalConnect and Altibox show notable progress. Comprehensive analysis based on nPerf data for fixe.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2025/01/NO-fixe-2024-header_blog-768x523.png",
+      "created_at": "2025-01-13 23:00:00+00",
+      "category": ""
+    },
+    {
+      "blog_id": 41,
+      "title": "Exploring Morocco's Fixed Networks Transformation in 2024 Who's Leading the Charge",
+      "summary": "Découvrez les dernières informations sur les performances internet du Maroc durant la période 2023-2024. Maroc Telecom, Orange mènent le classement avec des mesures impressionnantes, tandis qu'Inwi montre des progrès notables. Analyse complète basée sur les données nPerf pour fixe.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2025/01/MA-fixe-2024-header_blog-768x523.png",
+      "created_at": "2025-01-10 23:00:00+00",
+      "category": ""
+    },
+    {
+      "blog_id": 42,
+      "title": "Exploring Sri Lanka's Mobile Networks in 2024: Who's Leading the Charge?",
+      "summary": "Discover the latest insights into lk's internet performance during Q1 2024-Q4 2024. Mobitel, Dialog leads the rankings with impressive metrics, while Hutch and Airtel show notable progress. Comprehensive analysis based on nPerf data for mobile.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2025/01/LK-mobile-2024-header_blog-768x523.png",
+      "created_at": "2025-01-10 23:00:00+00",
+      "category": ""
+    },
+    {
+      "blog_id": 43,
+      "title": "Exploring Latvia's Fixed Networks Transformation in 2024 Who's Leading the Charge",
+      "summary": "Discover the latest insights into Latvia's internet performance during Q1 2024-Q4 2024. Balticom leads the rankings with impressive metrics, while TET and Bite show notable progress. Comprehensive analysis based on nPerf data for fixe.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2025/01/LV-fixe-2024-header_blog-768x523.png",
+      "created_at": "2025-01-10 23:00:00+00",
+      "category": ""
+    },
+    {
+      "blog_id": 44,
+      "title": "Exploring Lithuania's Fixed Networks Transformation in 2024 Who's Leading the Charge",
+      "summary": "Discover the latest insights into Lithuania's internet performance during Q1 2024-Q4 2024. Telia leads the rankings with impressive metrics, while Tele2 and show notable progress. Comprehensive analysis based on nPerf data for fixed-line.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2025/01/LT-fixe-2024-header_blog-768x523.png",
+      "created_at": "2025-01-10 23:00:00+00",
+      "category": ""
+    },
+    {
+      "blog_id": 45,
+      "title": "Exploring Croatia's Fixed Networks Transformation in 2024 Who's Leading the Charge",
+      "summary": "Discover the latest insights into Croatia's internet performance during Q1 2024-Q4 2024. A1 leads the rankings with impressive metrics, while Hrvatski Telekom and Telemach show notable progress. Comprehensive analysis based on nPerf data for fixed.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2025/01/HR-fixe-2024-header_blog-768x523.png",
+      "created_at": "2025-01-09 23:00:00+00",
+      "category": ""
+    },
+    {
+      "blog_id": 46,
+      "title": "Exploring Israel's Fixed Networks Transformation in 2024 Who's Leading the Charge",
+      "summary": "Discover the latest insights into Israel's internet performance during 2024. Bezeq leads the rankings with impressive metrics, while Partner and Cellcom BB show notable progress. Comprehensive analysis based on nPerf data for fixed.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2025/01/IL-fixe-2024-header_blog-768x523.png",
+      "created_at": "2025-01-09 23:00:00+00",
+      "category": ""
+    },
+    {
+      "blog_id": 47,
+      "title": "Test your Internet speed in Nigeria with nPerf - nPerf Blog",
+      "summary": "Whichever Internet operator in Nigeria you are a customer of (MTN, Airtel, 9mobile, ntel, Glo...) you can test your connection with the nPerf speed test.",
+      "thumbnail": "https://blog.nperf.com/wp-content/uploads/2024/08/Test-your-Internet-speed-in-Nigeria-with-nPerf-768x616.png",
+      "created_at": "2022-11-18 12:49:34+00",
+      "category": ""
+    },
+    {
+      "blog_id": 48,
+      "title": "Improve Your Wi-Fi Speed in 10 Simple Steps | HighSpeedInternet.com",
+      "summary": "Got the Wi-Fi speed blues? Learn how to speed up your Wi-Fi connections in this easy 10-step guide.",
+      "thumbnail": "",
+      "created_at": "2024-04-23T14:00:00+00:00",
+      "category": ""
+    },
+    {
+      "blog_id": 49,
+      "title": "8 Reasons Why Your Internet is Slow (and How to Fix It) | HighSpeedInternet.com",
+      "summary": "Having a slow internet connection can be frustrating. Here are eight potential reasons why your internet is running slowly, plus how to speed it back up.",
+      "thumbnail": "",
+      "created_at": "2024-06-05T18:30:59+00:00",
+      "category": ""
+    },
+    {
+      "blog_id": 50,
+      "title": "DSL vs. Fiber Internet | HighSpeedInternet.com",
+      "summary": "Fiber is fast but do you need it? We compare fiber and DSL internet to help you decide which provider type is the best for your internet needs.",
+      "thumbnail": "",
+      "created_at": "2025-01-24T15:00:35+00:00",
+      "category": ""
+    },
+    {
+      "blog_id": 51,
+      "title": "Mbps vs. Gbps: Do You Need Gigabit Internet? | HighSpeedInternet.com",
+      "summary": "1 Gbps is 1000x faster than 1 Mbps, but do you need gigabit internet? We explain the difference between a megabit and a gigabit and explore your options.",
+      "thumbnail": "",
+      "created_at": "2025-01-24T14:00:09+00:00",
+      "category": ""
+    },
+    {
+      "blog_id": 52,
+      "title": "Introduction of a Router - GeeksforGeeks",
+      "summary": "A Computer Science portal for geeks. It contains well written, well thought and well explained computer science and programming articles, quizzes and practice/competitive programming/company interview Questions.",
+      "thumbnail": "",
+      "created_at": "2018-11-12 05:26:56+00:00",
+      "category": ""
+    },
+    {
+      "blog_id": 53,
+      "title": "Difference between Unicast, Broadcast and Multicast in Computer Network - GeeksforGeeks",
+      "summary": "Unicast, Broadcast, and Multicast are three key data transmission methods in computer networks, each serving different communication needs: Unicast for one-to-one, Broadcast for one-to-all, and Multicast for one-to-group transmissions.",
+      "thumbnail": "",
+      "created_at": "2017-10-06 12:18:17+00:00",
+      "category": ""
+    },
+    {
+      "blog_id": 54,
+      "title": "Inter VLAN Routing by Layer 3 Switch - GeeksforGeeks",
+      "summary": "A Computer Science portal for geeks. It contains well written, well thought and well explained computer science and programming articles, quizzes and practice/competitive programming/company interview Questions.",
+      "thumbnail": "",
+      "created_at": "2018-03-28 16:27:44+00:00",
+      "category": ""
+    }
+  ],
+} as const;
+
+const transformBlogData = (): BlogResponse => ({
+  total: mockData.total,
+  page: mockData.page,
+  limit: mockData.limit,
+  blogs: mockData.blogs.map((blog) => ({
+    blog_id: blog.blog_id,
+    title: blog.title,
+    summary: blog.summary,
+    created_at: blog.created_at,
+    // Use a data URL for placeholder images to avoid CORS issues
+    thumbnail:
+      blog.thumbnail ||
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='768' height='523' viewBox='0 0 768 523'%3E%3Crect width='100%25' height='100%25' fill='%2349D5E2'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='system-ui' font-size='24' fill='white'%3ENo Image%3C/text%3E%3C/svg%3E",
+    category: blog.category || "Uncategorized",
+  })),
+});
+
+export const getMockBlogData = (): BlogResponse => transformBlogData();
