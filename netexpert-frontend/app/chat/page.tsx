@@ -1,5 +1,5 @@
 "use client";
-import React from 'react'
+import React, { useEffect } from 'react'
 import Header from '../components/Header'
 import CheckboxSvg from '../components/assets/CheckboxSvg';
 import BinSvg from '../components/assets/BinSvg';
@@ -10,13 +10,23 @@ import SendButtonSvg from '../components/assets/SendButtonSvg';
 import ConversationSvg from '../components/assets/ConversationSvg';
 import QuestionInCircleSvg from '../components/assets/QuestionInCircleSvg';
 import { authFetch } from '../utils';
+import { useRouter } from 'next/router';
 
 const Chat = () => {
+  // const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    console.log('submitting');
+  // useEffect(() => {
+  //   // if (!router.isReady) return; // Ensure the router is ready before using it
+  //   console.log('Current route:', router.pathname);
+  // }, [router]);
 
-  }
+
+  const handleNavigation = (chatId: string) => {
+    console.log(chatId);
+    // router.push(`/chat/${chatId}`);
+    window.location.href = `/chat/${chatId}`;
+    // router.push(`/chat/${chatId}`);
+  };
 
   return (
     <div className='w-full p-10 max-md:p-4 flex justify-center items-center pt-36'>
@@ -46,24 +56,44 @@ const Chat = () => {
             } else {
               // Store the token in localStorage
               console.log(data);
-              window.location.href = `/chat/${data.chatId}`;
-              handleSubmit(e);
+
+              authFetch('/api/chat/question', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  chatId: data.chatId,
+                  question: (e.target as any).question.value
+                }),
+              }).then(response => {
+                if (response.status === 401) {
+                }
+                else if (response.status === 200) {
+                  return response.json();
+                }
+              }).then(data => {
+                if (data.error) {
+                }
+                else {
+                  console.log(data);
+                  handleNavigation(data.chatId);
+                }
+              }).catch((error) => {
+                console.error('Error:', error);
+              });
             }
           })
           .catch((error) => {
             console.error('Error:', error);
           })
-          .finally(() => {
-            
-          });
-          handleSubmit(e);
 
         }}>
           <label className='flex justify-center items-center gap-2 p-2 w-full'>
             {/* <div className='flex-shrink-0'>
             <MicSvg className='w-7 h-7' />
           </div> */}
-            <input className='w-full text-white text-large font-medium leading-[120%] placeholder:text-white placeholder:text-large placeholder:font-medium placeholder:leading-[120%]' placeholder='Ask anything from here' />
+            <input name='question' className='w-full text-white text-large font-medium leading-[120%] placeholder:text-white placeholder:text-large placeholder:font-medium placeholder:leading-[120%]' placeholder='Ask anything from here' />
           </label>
           <button className='w-7 h-7'>
             <SendButtonSvg className='w-7 h-7' />
