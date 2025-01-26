@@ -2,7 +2,6 @@ import NextButton from '@/app/components/NextButton'
 import UserEditSvg from '@/app/components/assets/UserEditSvg'
 import UsersSvg from '@/app/components/assets/UsersSvg'
 import React, { useEffect } from 'react'
-import CryptoJS from 'crypto-js';
 
 const CreatePassword = ({ handleSubmit, data }: {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void,
@@ -38,7 +37,7 @@ const CreatePassword = ({ handleSubmit, data }: {
           },
           body: JSON.stringify({
             username: data.username,
-            password: CryptoJS.SHA256(password).toString(),
+            password: password,
             name: data.name,
             orgtype: data.orgtype,
             orgname: data.orgname
@@ -82,7 +81,7 @@ const CreatePassword = ({ handleSubmit, data }: {
           <div className='flex w-full h-full py-[10px] pl-4 pr-20 justify-start items-center gap-[10px] flex-shrink-0 rounded-2xl bg-neutral-7'>
             <UserEditSvg className='w-6 h-6 flex-shrink-0' />
             <input min={8} name="password" type='password' className='text-extra-small font-semibold opacity-70 text-neutral-5' placeholder='Enter password' onChange={(e) => {
-              setPassword(CryptoJS.SHA256(e.target.value).toString());
+              setPassword(e.target.value);
               setLengthOk(e.target.value.length >= 8);
               setUppercaseOk(/[A-Z]/.test(e.target.value));
               setLowercaseOk(/[a-z]/.test(e.target.value));
@@ -115,7 +114,7 @@ const CreatePassword = ({ handleSubmit, data }: {
           <div className='flex w-full h-full py-[10px] pl-4 pr-20 justify-start items-center gap-[10px] flex-shrink-0 rounded-2xl bg-neutral-7'>
             <UsersSvg className='w-6 h-6 flex-shrink-0' />
             <input min={8} name="retypepassword" type='password' className='text-extra-small font-semibold opacity-70 text-neutral-5' placeholder='Retype Password' onChange={(e) => {
-              setRetypeOk(CryptoJS.SHA256(e.target.value).toString() === password);
+              setRetypeOk(e.target.value === password);
             }} />
           </div>
         </label>

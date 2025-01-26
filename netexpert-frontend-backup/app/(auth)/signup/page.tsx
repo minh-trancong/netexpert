@@ -3,7 +3,6 @@ import React from 'react'
 import CreateAccount from './CreateAccount';
 import CreatePassword from './CreatePassword';
 import Link from 'next/link';
-import Done from './Done';
 
 const SignUp = () => {
 
@@ -22,22 +21,6 @@ const SignUp = () => {
       title: 'Create Account',
       component: <CreateAccount handleSubmit={(e) => {
         e.preventDefault();
-
-        const name = (e.target as any).name.value;
-        const username = (e.target as any).username.value;
-        const email = (e.target as any).email.value;
-        const orgtype = (e.target as any).orgtype.value;
-        const orgname = (e.target as any).orgname.value;
-        if (name && username && orgtype && orgname && email) {
-          setData({
-            name: name,
-            email: email,
-            username: username,
-            orgtype: orgtype,
-            orgname: orgname
-          });
-        }
-        
         setStep(2);
       }} />
     },
@@ -47,12 +30,7 @@ const SignUp = () => {
         e.preventDefault();
         setStep(3);
       }} data={data} />
-    },
-    {
-      title: 'Done',
-      component: <Done handleSubmit={() => {
-        window.location.href = '/chat';
-      }} />
+
     }
   ]
 

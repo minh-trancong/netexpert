@@ -9,14 +9,9 @@ import Link from 'next/link';
 import SendButtonSvg from '../components/assets/SendButtonSvg';
 import ConversationSvg from '../components/assets/ConversationSvg';
 import QuestionInCircleSvg from '../components/assets/QuestionInCircleSvg';
-import { authFetch } from '../utils';
 
 const Chat = () => {
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    console.log('submitting');
-
-  }
 
   return (
     <div className='w-full p-10 max-md:p-4 flex justify-center items-center pt-36'>
@@ -32,31 +27,6 @@ const Chat = () => {
         </div>
         <form className='flex py-1 px-5 justify-between items-center w-full rounded-3xl border border-solid border-[#49D5E2] bg-[rgba(228,245,249,0.50)] shadow-[4px_12px_8px_0px_rgba(0,0,0,0.25)]' onSubmit={(e) => {
           e.preventDefault();
-          authFetch('/api/chat/conversation', {
-            method: 'POST',
-          }).then((response) => {
-            if (response.status === 401) {
-            } else if (response.status === 200) {
-              return response.json();
-            }
-            return { error: true };
-          })
-          .then((data) => {
-            if (data.error) {
-            } else {
-              // Store the token in localStorage
-              console.log(data);
-              window.location.href = `/chat/${data.chatId}`;
-              handleSubmit(e);
-            }
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-          })
-          .finally(() => {
-            
-          });
-          handleSubmit(e);
 
         }}>
           <label className='flex justify-center items-center gap-2 p-2 w-full'>
