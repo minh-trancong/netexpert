@@ -94,7 +94,7 @@ const sampleMessages: Message[] = [
   },
 ];
 
-const ChatID = ({ params }: { params: { chatId: string } }) => {
+const ChatID = ({ params }:any ) => {
   const [messages, setMessages] = useState<Message[]>(sampleMessages);
   const [inputValue, setInputValue] = useState("");
   const [chatId, setchatId] = useState("");
