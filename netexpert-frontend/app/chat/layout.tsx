@@ -22,114 +22,34 @@ interface ChatLinks {
 
 const layout = ({ children }: { children: React.ReactNode }) => {
 
+  const [chats, setChats] = React.useState<NestedChatLinks[]>([]);
 
-
-  const demoData: NestedChatLinks[] = [
-    {
-      timetitle: 'Today',
-      chats: [
-        {
-          title: 'John Doe',
-          id: '1',
-        },
-        {
-          title: 'Jane Doe',
-          id: '2',
-        },
-      ],
-    },
-    {
-      timetitle: 'Yesterday',
-      chats: [
-        {
-          title: 'John Doe',
-          id: '3',
-        },
-        {
-          title: 'Jane Doe',
-          id: '4',
-        },
-      ],
-    },
-    {
-      timetitle: 'Yesterday',
-      chats: [
-        {
-          title: 'John Doe',
-          id: '3',
-        },
-        {
-          title: 'Jane Doe',
-          id: '4',
-        },
-      ],
-    },
-    {
-      timetitle: 'Yesterday',
-      chats: [
-        {
-          title: 'John Doe',
-          id: '3',
-        },
-        {
-          title: 'Jane Doe',
-          id: '4',
-        },
-      ],
-    },
-    {
-      timetitle: 'Yesterday',
-      chats: [
-        {
-          title: 'John Doe',
-          id: '3',
-        },
-        {
-          title: 'Jane Doe',
-          id: '4',
-        },
-      ],
-    },
-    {
-      timetitle: 'Yesterday',
-      chats: [
-        {
-          title: 'John Doe',
-          id: '3',
-        },
-        {
-          title: 'Jane Doe',
-          id: '4',
-        },
-      ],
-    },
-    {
-      timetitle: 'Yesterday',
-      chats: [
-        {
-          title: 'John Doe',
-          id: '3',
-        },
-        {
-          title: 'Jane Doe',
-          id: '4',
-        },
-      ],
-    },
-    {
-      timetitle: 'Yesterday',
-      chats: [
-        {
-          title: 'John Doe',
-          id: '3',
-        },
-        {
-          title: 'Jane Doe',
-          id: '4',
-        },
-      ],
-    },
-  ];
+  useEffect(() => {
+    authFetch('/api/chats?limit=10', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        if (response.status === 401) {
+          console.log('Unauthorized');
+          window.location.href = '/login'; // Redirect if unauthorized
+          return null;
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data) {
+          setChats(data);
+        } else {
+          console.log('No data received or response was not JSON.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching chats:', error);
+      });
+  }, []);
 
   useEffect(() => {
     authFetch('/api/chats?limit=10').then((response) => {
@@ -152,7 +72,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
         <div className="h-full w-80 flex flex-col p-7 pb-16 bg-black bg-[linear-gradient(180deg,_rgba(0,5,5,0.20)_-7.36%,_rgba(162,242,254,0.20)_29.48%,_rgba(106,185,216,0.20)_48.12%,_rgba(255,255,255,0.20)_99.77%)] backdrop-blur-[20px] gap-24">
           {/* Chat Links */}
           <div className="h-full overflow-y-auto">
-            {demoData.map((group, index) => (
+            {chats.map((group, index) => (
               <div key={index} className="mb-6">
                 <p className="text-white text-extra-small font-semibold mb-3">{group.timetitle}</p>
                 <div className="flex flex-col">

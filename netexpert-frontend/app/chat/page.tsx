@@ -10,22 +10,14 @@ import SendButtonSvg from '../components/assets/SendButtonSvg';
 import ConversationSvg from '../components/assets/ConversationSvg';
 import QuestionInCircleSvg from '../components/assets/QuestionInCircleSvg';
 import { authFetch } from '../utils';
-import { useRouter } from 'next/router';
 
-const Chat = () => {
-  // const router = useRouter();
+const Chat = ( ) => {
 
-  // useEffect(() => {
-  //   // if (!router.isReady) return; // Ensure the router is ready before using it
-  //   console.log('Current route:', router.pathname);
-  // }, [router]);
-
+  // console.log(params);
 
   const handleNavigation = (chatId: string) => {
     console.log(chatId);
-    // router.push(`/chat/${chatId}`);
     window.location.href = `/chat/${chatId}`;
-    // router.push(`/chat/${chatId}`);
   };
 
   return (
@@ -66,22 +58,8 @@ const Chat = () => {
                   chatId: data.chatId,
                   question: (e.target as any).question.value
                 }),
-              }).then(response => {
-                if (response.status === 401) {
-                }
-                else if (response.status === 200) {
-                  return response.json();
-                }
-              }).then(data => {
-                if (data.error) {
-                }
-                else {
-                  console.log(data);
-                  handleNavigation(data.chatId);
-                }
-              }).catch((error) => {
-                console.error('Error:', error);
-              });
+              })
+              handleNavigation(data.chatId);
             }
           })
           .catch((error) => {
