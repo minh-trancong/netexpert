@@ -1,10 +1,10 @@
 "use client";
 
-import React, { JSX, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import * as d3 from "d3";
 import SendButtonSvg from "@/app/components/assets/SendButtonSvg";
-
+import { authFetch } from "@/app/utils";
 // Interfaces
 interface MarkdownMessage {
   from: "user" | "bot";
@@ -16,19 +16,18 @@ interface GraphMessage {
   from: "bot";
   contenttype: "graph";
   content: {
-    nodes: {
+    devices: {
       id: string;
-      type: "custom";
-      data: {
-        label: string;
-        image: string;
-      };
+      device_type: string;
+      name: string;
+      quantity: number;
+      img_url: string;
     }[];
-    edges: {
-      id: string;
-      source: string;
-      target: string;
+    network_diagram: {
+      device_id: string;
+      connection_to: string[];
     }[];
+    cost: number;
   };
 }
 
@@ -62,89 +61,85 @@ const sampleMessages: Message[] = [
         from: "bot",
         contenttype: "graph",
         content: {
-          nodes: [
+          devices: [
             {
-              id: "1",
-              type: "custom",
-              data: {
-                label: "Node 1",
-                image: "https://via.placeholder.com/50",
-              },
+              id: "device1",
+              device_type: "router",
+              name: "Router A",
+              quantity: 1,
+              img_url: "https://via.placeholder.com/100",
             },
             {
-              id: "2",
-              type: "custom",
-              data: {
-                label: "Node 2",
-                image: "https://via.placeholder.com/50",
-              },
-            },
-            {
-              id: "3",
-              type: "custom",
-              data: {
-                label: "Node 3",
-                image: "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg",
-              },
+              id: "device2",
+              device_type: "switch",
+              name: "Switch B",
+              quantity: 2,
+              img_url: "https://via.placeholder.com/100",
             },
           ],
-          edges: [
+          network_diagram: [
             {
-              id: "e1-2",
-              source: "1",
-              target: "2",
+              device_id: "device1",
+              connection_to: ["device2"],
             },
             {
-              id: "e2-3",
-              source: "2",
-              target: "3",
+              device_id: "device2",
+              connection_to: ["device1"],
             },
           ],
+          cost: 1500.75,
         },
       },
     ],
   },
 ];
 
-// TypeScript-compatible Component
-const ChatID: React.FC = () => {
-  const [messages] = React.useState<Message[]>(sampleMessages);
+const ChatID = ({ params }: { params: { chatId: string } }) => {
+  const [messages, setMessages] = useState<Message[]>(sampleMessages);
+  const [inputValue, setInputValue] = useState("");
+  const [chatId, setchatId] = useState("");
 
-  const createGraph = (
-    content: GraphMessage["content"],
-    svgElement: SVGSVGElement | null
-  ) => {
+  useEffect(() => {
+    if (params instanceof Promise) {
+      params.then((resolvedParams) => {
+        console.log("Resolved Params:", resolvedParams); // Inspect the resolved data
+        console.log("ID:", resolvedParams.id); // Access the id
+        setchatId(resolvedParams.id);
+      });
+    }
+
+  }, [])
+
+  const createGraph = (content: GraphMessage["content"], svgElement: SVGSVGElement | null) => {
     if (!svgElement) return;
 
-    // Prepare nodes and links
-    const nodes = content.nodes.map((node) => ({
-      id: node.id,
-      label: node.data.label,
-      image: node.data.image,
-      x: 0, // Add x property
-      y: 0, // Add y property
+    const devices = content.devices.map((device) => ({
+      id: device.id,
+      label: device.name,
+      image: device.img_url,
+      x: 0,
+      y: 0,
     }));
 
-    const links = content.edges.map((edge) => ({
-      source: edge.source,
-      target: edge.target,
-    }));
+    const links = content.network_diagram.flatMap((connection) =>
+      connection.connection_to.map((target) => ({
+        source: connection.device_id,
+        target,
+      }))
+    );
 
     const width = 600;
     const height = 400;
 
-    // Clear previous SVG content
-    const svg = d3.select<SVGSVGElement, unknown>(svgElement);
+    const svg = d3.select(svgElement);
     svg.selectAll("*").remove();
 
-    // Create simulation
     const simulation = d3
-      .forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id((d: any) => d.id).distance(100))
-      .force("charge", d3.forceManyBody().strength(-300))
+      .forceSimulation(devices)
+      .force("link", d3.forceLink(links).id((d: any) => d.id).distance(150))
+      .force("charge", d3.forceManyBody().strength(-400))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
-    // Create links
     const link = svg
       .append("g")
       .attr("stroke", "#aaa")
@@ -153,11 +148,11 @@ const ChatID: React.FC = () => {
       .data(links)
       .join("line");
 
-    // Create custom image nodes
+
     const node = svg
       .append("g")
       .selectAll<SVGImageElement, any>("image")
-      .data(nodes)
+      .data(devices)
       .join("image")
       .attr("xlink:href", (d: any) => d.image) // Set image URL
       .attr("width", 40) // Adjust image size
@@ -183,20 +178,9 @@ const ChatID: React.FC = () => {
           })
       );
 
-    node.append("title").text((d: any) => d.label); // Add tooltip to images
 
-    // Add labels
-    const label = svg
-      .append("g")
-      .selectAll<SVGTextElement, any>("text")
-      .data(nodes)
-      .join("text")
-      .attr("text-anchor", "middle")
-      .attr("dy", 25) // Position below the image
-      .attr("font-size", 12)
-      .text((d: any) => d.label);
+    node.append("title").text((d: any) => d.label);
 
-    // On each tick, update positions
     simulation.on("tick", () => {
       link
         .attr("x1", (d: any) => (d.source as any).x)
@@ -204,25 +188,81 @@ const ChatID: React.FC = () => {
         .attr("x2", (d: any) => (d.target as any).x)
         .attr("y2", (d: any) => (d.target as any).y);
 
-      node.attr("x", (d: any) => d.x - 20).attr("y", (d: any) => d.y - 20);
-
-      label.attr("x", (d: any) => d.x).attr("y", (d: any) => d.y + 30);
+      node.attr("x", (d: any) => d.x - 25).attr("y", (d: any) => d.y - 25);
     });
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+
+    e.preventDefault();
+
+    setInputValue("");
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        status: "success",
+        messages: [
+          {
+            from: "user",
+            contenttype: "markdown",
+            content: (e.target as any).question.value,
+          },
+        ],
+      },
+    ]);
+
+    const form = e.target as HTMLFormElement;
+    const question = (form.elements.namedItem("question") as HTMLInputElement).value;
+
+    try {
+
+      const questionResponse = await authFetch("/api/chat/question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        
+        body: JSON.stringify({ chatId, question }),
+      }).then((response) => {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        } else if (response.status === 200) {
+          return response.json();
+        }
+        return { error: true };
+      }).then((data) => {
+        if (data.error) {
+          console.error("Error:", data);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              status: "error",
+              messages: [
+                {
+                  from: "bot",
+                  contenttype: "markdown",
+                  content: "An error occurred while processing your question.",
+                },
+              ],
+            },
+          ]);
+
+        } else {
+          console.log(data);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            data
+          ]);
+        
+        }
+      })
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   return (
     <div className="w-full h-full p-20 max-md:p-4 flex flex-col justify-between items-center gap-16">
-      {/* {tooltip.content && (
-        <div
-          className="absolute pointer-events-none z-10"
-          style={{
-            top: `${tooltip.y}px`,
-            left: `${tooltip.x}px`,
-          }}
-        >
-          {tooltip.content}
-        </div>
-      )} */}
       <div className="w-full h-full flex flex-col overflow-hidden">
         <div className="w-full overflow-auto flex flex-col gap-9">
           {messages.map((message, index) => (
@@ -247,7 +287,6 @@ const ChatID: React.FC = () => {
                     {msg.contenttype === "markdown" && (
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     )}
-
                   </div>
                 </div>
               ))}
@@ -256,18 +295,18 @@ const ChatID: React.FC = () => {
         </div>
       </div>
       <form
+        onSubmit={handleFormSubmit}
         className="flex py-1 px-5 justify-between items-center w-full rounded-3xl border border-solid border-[#49D5E2] bg-[rgba(228,245,249,0.50)] shadow-[4px_12px_8px_0px_rgba(0,0,0,0.25)]"
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
       >
         <label className="flex justify-center items-center gap-2 p-2 w-full">
           <input
+            name="question"
             className="w-full text-white text-large font-medium leading-[120%] placeholder:text-white placeholder:text-large placeholder:font-medium placeholder:leading-[120%]"
             placeholder="Ask anything from here"
+            value={inputValue} // Controlled input value
+            onChange={(e) => setInputValue(e.target.value)} // Update state on change
           />
-        </label>
-        <button className="w-7 h-7">
+        </label>         <button className="w-7 h-7">
           <SendButtonSvg className="w-7 h-7" />
         </button>
       </form>
