@@ -5,6 +5,7 @@ import Link from "next/link";
 import { authFetch } from "@/app/utils";
 import { getMockBlogData } from "@/app/utils/mockData";
 import type { BlogItem } from "@/app/types/blog";
+import Header from "@/app/components/Header";
 
 const Blog = () => {
   const [blogs, setBlogs] = useState<BlogItem[]>([]);
@@ -24,8 +25,8 @@ const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-black flex flex-col">
+      <Header />
       <div className="w-full py-20 px-10 bg-gradient-to-b from-[rgba(129,236,255,0.2)] to-transparent">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-h3 md:text-h1 font-bold text-white mb-6">
@@ -39,20 +40,23 @@ const Blog = () => {
         </div>
       </div>
 
-      {/* Blog Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {blogs.map((blog) => (
             <Link href={`/blog/${blog.blog_id}`} key={blog.blog_id}>
               <div className="bg-[rgba(255,255,255,0.05)] rounded-xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300">
                 <div className="relative h-48 w-full">
-                  <Image
-                    src={blog.thumbnail}
-                    alt={blog.title}
-                    fill
-                    style={{ objectFit: "cover" }}
-                    priority={false}
-                  />
+                  {blog.thumbnail ? (
+                    <Image
+                      src={blog.thumbnail}
+                      alt={blog.title}
+                      fill
+                      style={{ objectFit: "cover" }}
+                      priority={false}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-r from-[#49D5E2] to-[#66E7F5] opacity-50" />
+                  )}
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-3">
@@ -65,7 +69,7 @@ const Blog = () => {
                       {formatDate(blog.created_at)}
                     </span>
                   </div>
-                  <h3 className="text-white text-h6 font-semibold mb-3 line-clamp-2">
+                  <h3 className="text-white text-h5 font-semibold mb-3 line-clamp-2">
                     {blog.title}
                   </h3>
                   <p className="text-[#B5B5B5] text-medium line-clamp-3">
