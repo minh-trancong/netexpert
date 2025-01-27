@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://2387-171-234-128-88.ngrok-free.app/api/:path*"
+      "destination": "https://5008-171-234-128-88.ngrok-free.app/api/:path*"
     },
     {
       "source": "/chat/:id",
