@@ -248,7 +248,7 @@ const ChatID: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full p-20 max-md:p-4 flex flex-col justify-between items-center gap-16">
+    <div className="w-full h-full px-8 lg:px-10 lg:pb-10 2xl:px-20 max-md:p-4 flex flex-col justify-between items-center gap-16">
       {/* {tooltip.content && (
         <div
           className="absolute pointer-events-none z-10"
