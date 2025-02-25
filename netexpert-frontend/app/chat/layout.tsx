@@ -22,8 +22,6 @@ interface ChatLinks {
 
 const layout = ({ children }: { children: React.ReactNode }) => {
 
-
-
   const demoData: NestedChatLinks[] = [
     {
       timetitle: 'Today',
@@ -131,18 +129,18 @@ const layout = ({ children }: { children: React.ReactNode }) => {
     },
   ];
 
-  useEffect(() => {
-    authFetch('/api/chats?limit=10').then((response) => {
-      if (response.status === 401) {
-        console.log('Unauthorized');
-      }
-    }).then((data) => {
-      console.log(data);
-    }).catch((error) => {
-      console.error('Error:', error);
-    });
-    
-  }, []);
+  // useEffect(() => {
+  //   authFetch('/api/chats?limit=10').then((response) => {
+  //     if (response.status === 401) {
+  //       console.log('Unauthorized');
+  //     }
+  //   }).then((data) => {
+  //     console.log(data);
+  //   }).catch((error) => {
+  //     console.error('Error:', error);
+  //   });
+
+  // }, []);
 
   return (
     <div className="flex w-screen h-screen flex-col">

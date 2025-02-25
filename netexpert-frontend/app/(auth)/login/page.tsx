@@ -25,12 +25,10 @@ const Login = () => {
     <Done handleSubmit={() => {
       window.location.href = '/chat';
     }} />
-
   ]
 
   return (
     <>
-
       <div className='flex p-8 pr-16 justify-center items-center gap-2'>
         <div className='text-small text-neutral-6 font-medium'>
           Don't have an account ?

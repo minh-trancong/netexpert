@@ -2,14 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
-
-
   body {
     color: var(--foreground);
     background: var(--background);
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
   }
 
   input {
@@ -18,7 +15,6 @@
 }
 
 @layer components {
-
 }
 
 @layer utilities {
@@ -35,13 +31,58 @@
     @apply font-sans text-lg tracking-[0.2px];
   }
   .text-h2 {
-    @apply font-sans text-2xl leading-9; 
+    @apply font-sans text-2xl leading-9;
   }
   .text-h3 {
     @apply font-sans text-[32px] leading-[48px];
   }
   .text-h6 {
     @apply font-sans text-6xl;
+  }
+}
 
+.typing-animation {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #f1f1f1;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.typing-animation span {
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
+  background-color: gray;
+  border-radius: 50%;
+  display: inline-block;
+  animation: typing 1.2s infinite ease-in-out;
+}
+
+.typing-animation span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-animation span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-animation span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0% {
+    opacity: 0.2;
+    transform: translateY(0px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translateY(0px);
   }
 }

@@ -3,7 +3,20 @@
 import React, { JSX, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import * as d3 from "d3";
+import io from "socket.io-client";
 import SendButtonSvg from "@/app/components/assets/SendButtonSvg";
+import QuestionInCircleSvg from "@/app/components/assets/QuestionInCircleSvg";
+import ChevronRightSvg from "@/app/components/assets/ChevronRightSvg";
+import RefreshSvg from "@/app/components/assets/RefreshSvg";
+import ThumbsUpSvg from "@/app/components/assets/ThumbsUpSvg";
+import ThumbsDownSvg from "@/app/components/assets/ThumbsDownSvg";
+import ClipboardSvg from "@/app/components/assets/ClipboardSvg";
+import VolumeSvg from "@/app/components/assets/VolumeSvg";
+import { useParams } from "next/navigation";
+
+import messageData from "@/app/data/messageData.json";
+
+const socket = io("http://localhost:4000");
 
 // Interfaces
 interface MarkdownMessage {
@@ -38,77 +51,86 @@ interface Message {
 }
 
 // Sample Messages
-const sampleMessages: Message[] = [
-  {
-    status: "success",
-    messages: [
-      {
-        from: "user",
-        contenttype: "markdown",
-        content: "Hello, how can I use graphs in my application?",
-      },
-      {
-        from: "bot",
-        contenttype: "markdown",
-        content:
-          "You can use libraries like **React Flow**, **D3.js**, or **Cytoscape.js** to create interactive graph visualizations.",
-      },
-    ],
-  },
-  {
-    status: "success",
-    messages: [
-      {
-        from: "bot",
-        contenttype: "graph",
-        content: {
-          nodes: [
-            {
-              id: "1",
-              type: "custom",
-              data: {
-                label: "Node 1",
-                image: "https://via.placeholder.com/50",
-              },
-            },
-            {
-              id: "2",
-              type: "custom",
-              data: {
-                label: "Node 2",
-                image: "https://via.placeholder.com/50",
-              },
-            },
-            {
-              id: "3",
-              type: "custom",
-              data: {
-                label: "Node 3",
-                image: "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg",
-              },
-            },
-          ],
-          edges: [
-            {
-              id: "e1-2",
-              source: "1",
-              target: "2",
-            },
-            {
-              id: "e2-3",
-              source: "2",
-              target: "3",
-            },
-          ],
-        },
-      },
-    ],
-  },
+const sampleMessages: Message[] = messageData as Message[];
+
+const sampleFollowUps: String[] = [
+  "How many devices do you plan to connect to the network?",
+  "What type of internet connection do you currently have?",
+  "Would you like recommendations for cost-effective equipment?",
 ];
 
 // TypeScript-compatible Component
 const ChatID: React.FC = () => {
-  const [messages] = React.useState<Message[]>(sampleMessages);
+  // const messages = sampleMessages;
+  const [mess, setMessages] =
+    React.useState<(MarkdownMessage | GraphMessage)[]>();
+  const [hoveredMessage, setHoveredMessage] = React.useState<{
+    parentIndex: number;
+    childIndex: number;
+  } | null>(null);
+  const [input, setInput] = React.useState("");
+  const [botTyping, setBotTyping] = React.useState(false); // State to track bot typing
+  const params = useParams();
+  const id = params["id"];
+
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [mess, botTyping]); // Runs when messages change or bot starts typing
+
+  React.useEffect(() => {
+    // Load previous chat history
+    socket.emit("loadChat", id);
+    socket.on("chatHistory", (history) => {
+      setMessages(history);
+      console.log("history", history);
+    });
+
+    // Listen for bot typing status
+    socket.on("botTyping", ({ chatId, isTyping }) => {
+      if (chatId === id) {
+        setBotTyping(isTyping);
+      }
+    });
+
+    // Listen for bot messages
+    socket.on("botMessage", ({ chatId: responseChatId, message }) => {
+      if (responseChatId === id) {
+        setBotTyping(false); // Stop bot typing animation
+        setMessages((prev) => (prev ? [...prev, message] : [message]));
+      }
+    });
+
+    return () => {
+      socket.off("chatHistory");
+      socket.off("botTyping");
+      socket.off("botMessage");
+    };
+  }, []);
+
+  const sendMessage = () => {
+    if (!input.trim()) return;
+
+    const userMessage = {
+      from: "user",
+      contenttype: "markdown",
+      content: input.trim(),
+    };
+
+    // Send message with chat ID
+    socket.emit("userMessage", { chatId: id, message: userMessage });
+
+    // Update UI immediately
+    setMessages((prev) => (prev ? [...prev, userMessage] : [userMessage]));
+
+    // Show bot typing animation automatically
+    setBotTyping(true);
+
+    setInput("");
+  };
 
   const createGraph = (
     content: GraphMessage["content"],
@@ -140,7 +162,13 @@ const ChatID: React.FC = () => {
     // Create simulation
     const simulation = d3
       .forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id((d: any) => d.id).distance(100))
+      .force(
+        "link",
+        d3
+          .forceLink(links)
+          .id((d: any) => d.id)
+          .distance(100)
+      )
       .force("charge", d3.forceManyBody().strength(-300))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
@@ -148,7 +176,7 @@ const ChatID: React.FC = () => {
     const link = svg
       .append("g")
       .attr("stroke", "#aaa")
-      .attr("stroke-width", 2)
+      .attr("strokeWidth", 2)
       .selectAll("line")
       .data(links)
       .join("line");
@@ -167,20 +195,29 @@ const ChatID: React.FC = () => {
       .call(
         d3
           .drag<SVGImageElement, any>()
-          .on("start", (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-          })
-          .on("drag", (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
-            d.fx = event.x;
-            d.fy = event.y;
-          })
-          .on("end", (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-          })
+          .on(
+            "start",
+            (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
+              if (!event.active) simulation.alphaTarget(0.3).restart();
+              d.fx = d.x;
+              d.fy = d.y;
+            }
+          )
+          .on(
+            "drag",
+            (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
+              d.fx = event.x;
+              d.fy = event.y;
+            }
+          )
+          .on(
+            "end",
+            (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
+              if (!event.active) simulation.alphaTarget(0);
+              d.fx = null;
+              d.fy = null;
+            }
+          )
       );
 
     node.append("title").text((d: any) => d.label); // Add tooltip to images
@@ -224,35 +261,101 @@ const ChatID: React.FC = () => {
         </div>
       )} */}
       <div className="w-full h-full flex flex-col overflow-hidden">
-        <div className="w-full overflow-auto flex flex-col gap-9">
-          {messages.map((message, index) => (
-            <React.Fragment key={index}>
-              {message.messages.map((msg, idx) => (
+        <div ref={chatContainerRef} className="w-full overflow-auto scrollbar-none flex flex-col gap-9">
+          {/* {messages.map((message, index) => ( */}
+          <React.Fragment>
+            {mess &&
+              mess.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`w-full flex ${msg.from === "user" ? "justify-end" : "justify-start"
-                    }`}
+                  className={`w-full flex ${
+                    msg.from === "user" ? "justify-end" : "justify-start"
+                  }`}
+                  onMouseEnter={() =>
+                    setHoveredMessage({ parentIndex: 0, childIndex: idx })
+                  }
+                  onMouseLeave={() => setHoveredMessage(null)}
                 >
-                  <div className="gap-2 py-6 px-10 rounded-lg border border-[rgba(255,250,250,0.10)] bg-[rgba(255,255,255,0.20)] w-full max-w-[75%]">
-                    {msg.contenttype === "graph" && (
-                      <div className="h-96 w-full border">
-                        <svg
-                          ref={(ref) => {
-                            if (ref) createGraph(msg.content, ref);
-                          }}
-                          style={{ width: "100%", height: "100%" }}
-                        />
+                  <div className="w-fit max-w-[55%]">
+                    <div className="gap-2 py-6 px-10 rounded-lg border border-[rgba(255,250,250,0.10)] bg-[rgba(255,255,255,0.20)] ">
+                      {msg.contenttype === "graph" && (
+                        <div className=" aspect-video h-96 w-auto border">
+                          <svg
+                            ref={(ref) => {
+                              if (ref) createGraph(msg.content, ref);
+                            }}
+                            style={{ width: "100%", height: "100%" }}
+                          />
+                        </div>
+                      )}
+                      {msg.contenttype === "markdown" && (
+                        <div className=" text-white">
+                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        </div>
+                      )}
+                    </div>
+
+                    {msg.from === "bot" && idx == 0 && (
+                      <div className=" text-white pt-4 pl-8">
+                        <div>
+                          <h3 className=" text-lg">Follow-ups:</h3>
+                          <div className=" font-light space-y-3 pt-2 pl-6 cursor-pointer">
+                            {sampleFollowUps.map((msg, idx) => (
+                              <div
+                                className=" flex items-center border-0 border-b-[1px] border-b-slate-400 w-1/2"
+                                key={idx}
+                              >
+                                <QuestionInCircleSvg className="w-7 h-7" />
+                                <p className=" pl-4">{msg}</p>
+                                <ChevronRightSvg className=" w-4 h-4 ml-auto" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     )}
-                    {msg.contenttype === "markdown" && (
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
-                    )}
 
+                    {/* Tool bar - Smooth Animation*/}
+                    {msg.from === "bot" && (
+                      <div
+                        className={`mt-4 flex justify-center gap-4 bg-white/5 px-4 py-1 rounded-full w-fit transition-all duration-300 ease-in-out ${
+                          hoveredMessage?.parentIndex === 0 &&
+                          hoveredMessage?.childIndex === idx
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 translate-y-2 pointer-events-none"
+                        }`}
+                      >
+                        <button className="p-2 hover:bg-gray-700 rounded-lg ">
+                          <RefreshSvg className="text-gray-400 w-5 h-5" />
+                        </button>
+                        <button className="p-2 hover:bg-gray-700 rounded-lg">
+                          <ThumbsUpSvg className="text-gray-400 w-5 h-5" />
+                        </button>
+                        <button className="p-2 hover:bg-gray-700 rounded-lg">
+                          <ThumbsDownSvg className="text-gray-400 w-5 h-5" />
+                        </button>
+                        <button className="p-2 hover:bg-gray-700 rounded-lg">
+                          <ClipboardSvg className="text-gray-400 w-5 h-5" />
+                        </button>
+                        <button className="p-2 hover:bg-gray-700 rounded-lg">
+                          <VolumeSvg className="text-gray-400 w-5 h-5" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
-            </React.Fragment>
-          ))}
+
+            {/* Bot Typing Animation */}
+            {botTyping && (
+              <div className="message bot typing-animation justify-start">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            )}
+          </React.Fragment>
+          {/* ))} */}
         </div>
       </div>
       <form
@@ -263,11 +366,14 @@ const ChatID: React.FC = () => {
       >
         <label className="flex justify-center items-center gap-2 p-2 w-full">
           <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             className="w-full text-white text-large font-medium leading-[120%] placeholder:text-white placeholder:text-large placeholder:font-medium placeholder:leading-[120%]"
             placeholder="Ask anything from here"
           />
         </label>
-        <button className="w-7 h-7">
+        <button className="w-7 h-7" onClick={sendMessage}>
           <SendButtonSvg className="w-7 h-7" />
         </button>
       </form>
