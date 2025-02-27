@@ -74,10 +74,12 @@ const ChatID: React.FC = () => {
   const id = params["id"];
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const graphRefs = React.useRef<Map<number, SVGSVGElement>>(new Map());
 
   React.useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [mess, botTyping]); // Runs when messages change or bot starts typing
 
@@ -111,6 +113,18 @@ const ChatID: React.FC = () => {
     };
   }, []);
 
+  React.useEffect(() => {
+    if (!mess) return;
+    mess.forEach((msg, idx) => {
+      if (msg.contenttype === "graph") {
+        const svgEl = graphRefs.current.get(idx);
+        if (svgEl) {
+          createGraph((msg as GraphMessage).content, svgEl);
+        }
+      }
+    });
+  }, [mess]);
+
   const sendMessage = () => {
     if (!input.trim()) return;
 
@@ -138,6 +152,11 @@ const ChatID: React.FC = () => {
   ) => {
     if (!svgElement) return;
 
+    // Take width height
+    const boundingRect = svgElement.getBoundingClientRect();
+    const width = boundingRect.width;
+    const height = boundingRect.height;
+
     // Prepare nodes and links
     const nodes = content.nodes.map((node) => ({
       id: node.id,
@@ -151,9 +170,6 @@ const ChatID: React.FC = () => {
       source: edge.source,
       target: edge.target,
     }));
-
-    const width = 600;
-    const height = 400;
 
     // Clear previous SVG content
     const svg = d3.select<SVGSVGElement, unknown>(svgElement);
@@ -261,7 +277,10 @@ const ChatID: React.FC = () => {
         </div>
       )} */}
       <div className="w-full h-full flex flex-col overflow-hidden">
-        <div ref={chatContainerRef} className="w-full overflow-auto scrollbar-none flex flex-col gap-9">
+        <div
+          ref={chatContainerRef}
+          className="w-full overflow-auto scrollbar-none flex flex-col gap-9"
+        >
           {/* {messages.map((message, index) => ( */}
           <React.Fragment>
             {mess &&
@@ -277,12 +296,16 @@ const ChatID: React.FC = () => {
                   onMouseLeave={() => setHoveredMessage(null)}
                 >
                   <div className="w-fit max-w-[55%]">
-                    <div className="gap-2 py-6 px-10 rounded-lg border border-[rgba(255,250,250,0.10)] bg-[rgba(255,255,255,0.20)] ">
+                    <div className="gap-2 p-3 lg:py-6 lg:px-10 w-fit rounded-lg border border-[rgba(255,250,250,0.10)] bg-[rgba(255,255,255,0.20)] ">
                       {msg.contenttype === "graph" && (
-                        <div className=" aspect-video h-96 w-auto border">
+                        <div className=" aspect-square lg:aspect-video lg:h-[250px] 2xl:h-96 w-auto border rounded-lg">
                           <svg
-                            ref={(ref) => {
-                              if (ref) createGraph(msg.content, ref);
+                            ref={(el) => {
+                              if (el) {
+                                graphRefs.current.set(idx, el);
+                              } else {
+                                graphRefs.current.delete(idx);
+                              }
                             }}
                             style={{ width: "100%", height: "100%" }}
                           />
