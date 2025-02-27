@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         hostname: 'blog.nperf.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        pathname: '/**',
+      },
     ],
   },
   rewrites: async () => {
