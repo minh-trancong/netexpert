@@ -105,7 +105,7 @@ export const startNewChat = async (message: string) => {
   try {
     const token = getToken();
     const user_id = localStorage.getItem('user_id');
-    
+
 //Tạo session id bằng cách nào đó và lưu vào localStorage
     const session_id = ''; // Thay đổi giá trị này thành session_id thực tế
     localStorage.setItem('session_id', session_id);
