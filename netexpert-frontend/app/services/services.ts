@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000'; // Thay đổi URL này thành URL của backend của bạn
+const API_URL = 'https://netexpert-server.onrender.com'; // Thay đổi URL này thành URL của backend của bạn
 
 // Hàm để lấy token từ localStorage
 const getToken = () => {
