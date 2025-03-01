@@ -106,13 +106,14 @@ export const startNewChat = async (message: string) => {
     const token = getToken();
     const user_id = localStorage.getItem('user_id');
 
-//Tạo session id bằng cách nào đó và lưu vào localStorage
+    //Tạo session id bằng cách nào đó và lưu vào localStorage
     const session_id = ''; // Thay đổi giá trị này thành session_id thực tế
     localStorage.setItem('session_id', session_id);
 
     const response = await axios.post(`${API_URL}/chat/newChat`, { message, user_id, session_id }, {
       headers: { Authorization: `Bearer ${token}` }
     });
+    console.log("Success create new chat!", response.data);
     return response.data;
   } catch (error) {
     console.error('Error starting new chat:', error);

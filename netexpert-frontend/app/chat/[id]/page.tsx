@@ -3,7 +3,7 @@
 import React, { JSX, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import * as d3 from "d3";
-import io from "socket.io-client";
+// import io from "socket.io-client";
 import SendButtonSvg from "@/app/components/assets/SendButtonSvg";
 import QuestionInCircleSvg from "@/app/components/assets/QuestionInCircleSvg";
 import ChevronRightSvg from "@/app/components/assets/ChevronRightSvg";
@@ -14,9 +14,11 @@ import ClipboardSvg from "@/app/components/assets/ClipboardSvg";
 import VolumeSvg from "@/app/components/assets/VolumeSvg";
 import { useParams } from "next/navigation";
 
+import { getChatHistory, getResponse } from "@/app/services/services";
+
 import messageData from "@/app/data/messageData.json";
 
-const socket = io("http://localhost:4000");
+// const socket = io("http://localhost:4000");
 
 // Interfaces
 interface MarkdownMessage {
@@ -62,8 +64,7 @@ const sampleFollowUps: String[] = [
 // TypeScript-compatible Component
 const ChatID: React.FC = () => {
   // const messages = sampleMessages;
-  const [mess, setMessages] =
-    React.useState<(MarkdownMessage | GraphMessage)[]>();
+  const [mess, setMessages] = React.useState<any[]>();
   const [hoveredMessage, setHoveredMessage] = React.useState<{
     parentIndex: number;
     childIndex: number;
@@ -71,7 +72,8 @@ const ChatID: React.FC = () => {
   const [input, setInput] = React.useState("");
   const [botTyping, setBotTyping] = React.useState(false); // State to track bot typing
   const params = useParams();
-  const id = params["id"];
+  const conservation_id = params["id"] as string;
+  const user_id = localStorage.getItem("user_id") || "";
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const graphRefs = React.useRef<Map<number, SVGSVGElement>>(new Map());
@@ -84,64 +86,46 @@ const ChatID: React.FC = () => {
   }, [mess, botTyping]); // Runs when messages change or bot starts typing
 
   React.useEffect(() => {
-    // Load previous chat history
-    socket.emit("loadChat", id);
-    socket.on("chatHistory", (history) => {
-      setMessages(history);
-      console.log("history", history);
+    getChatHistory(conservation_id, user_id, "").then((data) => {
+      console.log("chat history", data);
+      setMessages(data);
     });
-
-    // Listen for bot typing status
-    socket.on("botTyping", ({ chatId, isTyping }) => {
-      if (chatId === id) {
-        setBotTyping(isTyping);
-      }
-    });
-
-    // Listen for bot messages
-    socket.on("botMessage", ({ chatId: responseChatId, message }) => {
-      if (responseChatId === id) {
-        setBotTyping(false); // Stop bot typing animation
-        setMessages((prev) => (prev ? [...prev, message] : [message]));
-      }
-    });
-
-    return () => {
-      socket.off("chatHistory");
-      socket.off("botTyping");
-      socket.off("botMessage");
-    };
   }, []);
 
-  React.useEffect(() => {
-    if (!mess) return;
-    mess.forEach((msg, idx) => {
-      if (msg.contenttype === "graph") {
-        const svgEl = graphRefs.current.get(idx);
-        if (svgEl) {
-          createGraph((msg as GraphMessage).content, svgEl);
-        }
-      }
-    });
-  }, [mess]);
+  // React.useEffect(() => {
+  //   if (!mess) return;
+  //   mess.forEach((msg, idx) => {
+  //     if (msg.contenttype === "graph") {
+  //       const svgEl = graphRefs.current.get(idx);
+  //       if (svgEl) {
+  //         createGraph((msg as GraphMessage).content, svgEl);
+  //       }
+  //     }
+  //   });
+  // }, [mess]);
 
   const sendMessage = () => {
     if (!input.trim()) return;
 
-    const userMessage: MarkdownMessage = {
-      from: "user",
-      contenttype: "markdown",
-      content: input.trim(),
-    };
-
-    // Send message with chat ID
-    socket.emit("userMessage", { chatId: id, message: userMessage });
-
     // Update UI immediately
-    setMessages((prev) => (prev ? [...prev, userMessage] : [userMessage]));
+    let processUserMessage = {
+      is_ai_response: false,
+      message: input.trim(),
+    };
+    setMessages((prev) =>
+      prev ? [...prev, processUserMessage] : [processUserMessage]
+    );
 
     // Show bot typing animation automatically
     setBotTyping(true);
+    console.log("user typing", input.trim());
+
+    // Send message with chat ID
+    getResponse(input.trim()).then((response) => {
+      console.log("response", response);
+      setMessages((prev) => (prev ? [...prev, response] : response));
+      setBotTyping(false);
+    });
 
     setInput("");
   };
@@ -284,90 +268,97 @@ const ChatID: React.FC = () => {
           {/* {messages.map((message, index) => ( */}
           <React.Fragment>
             {mess &&
-              mess.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`w-full flex ${
-                    msg.from === "user" ? "justify-end" : "justify-start"
-                  }`}
-                  onMouseEnter={() =>
-                    setHoveredMessage({ parentIndex: 0, childIndex: idx })
-                  }
-                  onMouseLeave={() => setHoveredMessage(null)}
-                >
-                  <div className="w-fit max-w-[55%]">
-                    <div className="gap-2 p-3 lg:py-6 lg:px-10 w-fit rounded-lg border border-[rgba(255,250,250,0.10)] bg-[rgba(255,255,255,0.20)] ">
-                      {msg.contenttype === "graph" && (
-                        <div className=" aspect-square lg:aspect-video lg:h-[250px] 2xl:h-96 w-auto border rounded-lg">
-                          <svg
-                            ref={(el) => {
-                              if (el) {
-                                graphRefs.current.set(idx, el);
-                              } else {
-                                graphRefs.current.delete(idx);
-                              }
-                            }}
-                            style={{ width: "100%", height: "100%" }}
-                          />
+              mess.map((msg, idx) => {
+                let contentType = "graph";
+                if (msg.networks === undefined || msg.networks.length == 0) {
+                  contentType = "markdown";
+                }
+
+                return (
+                  <div
+                    key={idx}
+                    className={`w-full flex ${
+                      !msg.is_ai_response ? "justify-end" : "justify-start"
+                    }`}
+                    onMouseEnter={() =>
+                      setHoveredMessage({ parentIndex: 0, childIndex: idx })
+                    }
+                    onMouseLeave={() => setHoveredMessage(null)}
+                  >
+                    <div className="w-fit max-w-[55%]">
+                      <div className="gap-2 p-3 lg:py-6 lg:px-10 w-fit rounded-lg border border-[rgba(255,250,250,0.10)] bg-[rgba(255,255,255,0.20)] ">
+                        {contentType === "graph" && (
+                          <div className=" aspect-square lg:aspect-video lg:h-[250px] 2xl:h-96 w-auto border rounded-lg">
+                            <svg
+                              ref={(el) => {
+                                if (el) {
+                                  graphRefs.current.set(idx, el);
+                                } else {
+                                  graphRefs.current.delete(idx);
+                                }
+                              }}
+                              style={{ width: "100%", height: "100%" }}
+                            />
+                          </div>
+                        )}
+                        {contentType === "markdown" && (
+                          <div className=" text-white">
+                            <ReactMarkdown>{msg.message}</ReactMarkdown>
+                          </div>
+                        )}
+                      </div>
+
+                      {msg.is_ai_response && idx == 0 && (
+                        <div className=" text-white pt-4 pl-8">
+                          <div>
+                            <h3 className=" text-lg">Follow-ups:</h3>
+                            <div className=" font-light space-y-3 pt-2 pl-6 cursor-pointer">
+                              {sampleFollowUps.map((msg, idx) => (
+                                <div
+                                  className=" flex items-center border-0 border-b-[1px] border-b-slate-400 w-1/2"
+                                  key={idx}
+                                >
+                                  <QuestionInCircleSvg className="w-7 h-7" />
+                                  <p className=" pl-4">{msg}</p>
+                                  <ChevronRightSvg className=" w-4 h-4 ml-auto" />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       )}
-                      {msg.contenttype === "markdown" && (
-                        <div className=" text-white">
-                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+
+                      {/* Tool bar - Smooth Animation*/}
+                      {msg.from === "bot" && (
+                        <div
+                          className={`mt-4 flex justify-center gap-4 bg-white/5 px-4 py-1 rounded-full w-fit transition-all duration-300 ease-in-out ${
+                            hoveredMessage?.parentIndex === 0 &&
+                            hoveredMessage?.childIndex === idx
+                              ? "opacity-100 translate-y-0"
+                              : "opacity-0 translate-y-2 pointer-events-none"
+                          }`}
+                        >
+                          <button className="p-2 hover:bg-gray-700 rounded-lg ">
+                            <RefreshSvg className="text-gray-400 w-5 h-5" />
+                          </button>
+                          <button className="p-2 hover:bg-gray-700 rounded-lg">
+                            <ThumbsUpSvg className="text-gray-400 w-5 h-5" />
+                          </button>
+                          <button className="p-2 hover:bg-gray-700 rounded-lg">
+                            <ThumbsDownSvg className="text-gray-400 w-5 h-5" />
+                          </button>
+                          <button className="p-2 hover:bg-gray-700 rounded-lg">
+                            <ClipboardSvg className="text-gray-400 w-5 h-5" />
+                          </button>
+                          <button className="p-2 hover:bg-gray-700 rounded-lg">
+                            <VolumeSvg className="text-gray-400 w-5 h-5" />
+                          </button>
                         </div>
                       )}
                     </div>
-
-                    {msg.from === "bot" && idx == 0 && (
-                      <div className=" text-white pt-4 pl-8">
-                        <div>
-                          <h3 className=" text-lg">Follow-ups:</h3>
-                          <div className=" font-light space-y-3 pt-2 pl-6 cursor-pointer">
-                            {sampleFollowUps.map((msg, idx) => (
-                              <div
-                                className=" flex items-center border-0 border-b-[1px] border-b-slate-400 w-1/2"
-                                key={idx}
-                              >
-                                <QuestionInCircleSvg className="w-7 h-7" />
-                                <p className=" pl-4">{msg}</p>
-                                <ChevronRightSvg className=" w-4 h-4 ml-auto" />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Tool bar - Smooth Animation*/}
-                    {msg.from === "bot" && (
-                      <div
-                        className={`mt-4 flex justify-center gap-4 bg-white/5 px-4 py-1 rounded-full w-fit transition-all duration-300 ease-in-out ${
-                          hoveredMessage?.parentIndex === 0 &&
-                          hoveredMessage?.childIndex === idx
-                            ? "opacity-100 translate-y-0"
-                            : "opacity-0 translate-y-2 pointer-events-none"
-                        }`}
-                      >
-                        <button className="p-2 hover:bg-gray-700 rounded-lg ">
-                          <RefreshSvg className="text-gray-400 w-5 h-5" />
-                        </button>
-                        <button className="p-2 hover:bg-gray-700 rounded-lg">
-                          <ThumbsUpSvg className="text-gray-400 w-5 h-5" />
-                        </button>
-                        <button className="p-2 hover:bg-gray-700 rounded-lg">
-                          <ThumbsDownSvg className="text-gray-400 w-5 h-5" />
-                        </button>
-                        <button className="p-2 hover:bg-gray-700 rounded-lg">
-                          <ClipboardSvg className="text-gray-400 w-5 h-5" />
-                        </button>
-                        <button className="p-2 hover:bg-gray-700 rounded-lg">
-                          <VolumeSvg className="text-gray-400 w-5 h-5" />
-                        </button>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
             {/* Bot Typing Animation */}
             {botTyping && (
