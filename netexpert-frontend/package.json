@@ -11,6 +11,7 @@
   "dependencies": {
     "@types/crypto-js": "^4.2.2",
     "@types/d3": "^7.4.3",
+    "axios": "^1.8.1",
     "crypto-js": "^4.2.0",
     "d3": "^7.9.0",
     "lucide-react": "^0.476.0",
