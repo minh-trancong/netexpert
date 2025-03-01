@@ -264,22 +264,11 @@ const ChatID: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full px-8 lg:px-10 lg:pb-10 2xl:px-20 max-md:p-4 flex flex-col justify-between items-center gap-16">
-      {/* {tooltip.content && (
-        <div
-          className="absolute pointer-events-none z-10"
-          style={{
-            top: `${tooltip.y}px`,
-            left: `${tooltip.x}px`,
-          }}
-        >
-          {tooltip.content}
-        </div>
-      )} */}
-      <div className="w-full h-full flex flex-col overflow-hidden">
+    <div className="w-full h-full px-8 lg:px-10 2xl:px-20 max-md:p-4 flex flex-col justify-between items-center gap-16">
+      <div className="w-full h-screen flex flex-col overflow-hidden pb-12">
         <div
           ref={chatContainerRef}
-          className="w-full overflow-auto scrollbar-none flex flex-col gap-9"
+          className="w-full overflow-auto scrollbar-none flex flex-col gap-9 pt-8"
         >
           {/* {messages.map((message, index) => ( */}
           <React.Fragment>
@@ -380,26 +369,27 @@ const ChatID: React.FC = () => {
           </React.Fragment>
           {/* ))} */}
         </div>
+
+        <form
+          className="flex mt-4 py-1 px-5 justify-between items-center w-full rounded-3xl border border-solid border-[#49D5E2] bg-[rgba(228,245,249,0.50)] shadow-[4px_12px_8px_0px_rgba(0,0,0,0.25)]"
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <label className="flex justify-center items-center gap-2 p-2 w-full">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="w-full text-white text-large font-medium leading-[120%] placeholder:text-white placeholder:text-large placeholder:font-medium placeholder:leading-[120%]"
+              placeholder="Ask anything from here"
+            />
+          </label>
+          <button className="w-7 h-7" onClick={sendMessage}>
+            <SendButtonSvg className="w-7 h-7" />
+          </button>
+        </form>
       </div>
-      <form
-        className="flex py-1 px-5 justify-between items-center w-full rounded-3xl border border-solid border-[#49D5E2] bg-[rgba(228,245,249,0.50)] shadow-[4px_12px_8px_0px_rgba(0,0,0,0.25)]"
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <label className="flex justify-center items-center gap-2 p-2 w-full">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="w-full text-white text-large font-medium leading-[120%] placeholder:text-white placeholder:text-large placeholder:font-medium placeholder:leading-[120%]"
-            placeholder="Ask anything from here"
-          />
-        </label>
-        <button className="w-7 h-7" onClick={sendMessage}>
-          <SendButtonSvg className="w-7 h-7" />
-        </button>
-      </form>
     </div>
   );
 };
