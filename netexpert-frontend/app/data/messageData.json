@@ -1,0 +1,166 @@
+[
+  {
+    "status": "success",
+    "messages": [
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Hello, Arina! I'm NetExpert intelligent assistant. I'm here to assist you in configuring the perfect network for your needs. **What specific assistance would you like today?**"
+      },
+      {
+        "from": "user",
+        "contenttype": "markdown",
+        "content": "What network setup suits my small business?"
+      }
+    ]
+  },
+  {
+    "status": "success",
+    "messages": [
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "To provide the best recommendations, could you share the exact location of the installation area? This helps us tailor the solution to the connectivity and infrastructure available in your region."
+      },
+      {
+        "from": "user",
+        "contenttype": "markdown",
+        "content": "The installation is at 456 Nguyen Trai Street, Hoa Phu Commune, Chu Se District, Gia Lai Province."
+      }
+    ]
+  },
+  {
+    "status": "success",
+    "messages": [
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Thank you! Based on this location, satellite internet might be the most suitable option due to rural connectivity infrastructure. Let’s proceed to gather more details."
+      },
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Could you please let me know the approximate size of the area where the network will be used?(e.g: 50 square meters)"
+      },
+      {
+        "from": "user",
+        "contenttype": "markdown",
+        "content": "It’s approximately 300 square meters."
+      },
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Thank you for sharing! For an area of 300 square meters, additional access points may be required to ensure strong and stable connectivity throughout the space. Now, let’s move on to the next question: **What is the primary purpose of your network? (e.g., home use, small business, rural connectivity)**"
+      },
+      {
+        "from": "user",
+        "contenttype": "markdown",
+        "content": "It’s for small business operations."
+      },
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Thank you for sharing the purpose of your network! Understanding how the network will be used helps us tailor the best solution for you. Next, could you tell me:\nHow many devices do you plan to connect to the network? \nFor example:\n10 devices: Suitable for small teams or families. \n10-20 devices: Ideal for medium-sized businesses or shared spaces. \n20+ devices: Designed for larger businesses or highly connected environments."
+      },
+      {
+        "from": "user",
+        "contenttype": "markdown",
+        "content": "We’re planning to connect 15 devices, including laptops and mobile phones."
+      },
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Thank you for letting me know about the number of devices. With 15 devices, a reliable and stable setup will be essential to ensure smooth connectivity. Now, let’s move on to your internet connection: \n What type of internet connection are you currently using? ( e.g: fiber-optic, satellite internet, mobile broadband,...)"
+      },
+      {
+        "from": "user",
+        "contenttype": "markdown",
+        "content": "Satellite internet."
+      },
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Thank you for sharing details about your internet connection. Lastly, let’s discuss your bandwidth requirements. \n What bandwidth speed do you require? \n For example: \n 10-20 Mbps: Suitable for basic browsing and emails. \n 20-50 Mbps: Ideal for streaming and small business operations. \n 50+ Mbps: Best for larger businesses or data-intensive tasks."
+      },
+      {
+        "from": "user",
+        "contenttype": "markdown",
+        "content": "Around 30 Mbps."
+      },
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Thank you for sharing all these details. I’m now compiling the information to ensure we provide you with the best possible configuration. Please hold on for a moment while I summarize you’ve shared so far."
+      },
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Here’s a summary of the information we’ve gathered:\n\n- **Location:** 456 Nguyen Trai Street, Hoa Phu Commune, Chu Se District, Gia Lai Province.\n- **Area Size:** 300 square meters.\n- **Purpose:** Small business operations.\n- **Devices:** 15 devices, including laptops and mobile phones.\n- **Internet Connection Type:** Satellite internet.\n- **Bandwidth Speed:** 30 Mbps.\n\nCould you please confirm if everything looks correct?\n\nIf there are any details that need to be adjusted, feel free to let me know!"
+      },
+      {
+        "from": "user",
+        "contenttype": "markdown",
+        "content": "Yes, everything is correct. Let’s proceed with the configuration."
+      },
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Great! Thank you for confirming your details. Based on the information provided, I’m now creating a network configuration tailored to your needs. Please hold on while I prepare a visual network diagram."
+      },
+      {
+        "from": "bot",
+        "contenttype": "markdown",
+        "content": "Thank you for your patience while I processed the data. Based on the information you’ve provided, I’ve created a tailored network configuration plan for your small business."
+      }
+    ]
+  },
+  {
+    "status": "success",
+    "messages": [
+      {
+        "from": "bot",
+        "contenttype": "graph",
+        "content": {
+          "nodes": [
+            {
+              "id": "1",
+              "type": "custom",
+              "data": {
+                "label": "Node 1",
+                "image": "https://via.placeholder.com/50"
+              }
+            },
+            {
+              "id": "2",
+              "type": "custom",
+              "data": {
+                "label": "Node 2",
+                "image": "https://via.placeholder.com/50"
+              }
+            },
+            {
+              "id": "3",
+              "type": "custom",
+              "data": {
+                "label": "Node 3",
+                "image": "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg"
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e1-2",
+              "source": "1",
+              "target": "2"
+            },
+            {
+              "id": "e2-3",
+              "source": "2",
+              "target": "3"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
