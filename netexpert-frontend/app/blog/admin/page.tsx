@@ -12,8 +12,9 @@ export default function AdminBlogPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const mockData = getMockBlogData();
-        setBlogs(mockData.blogs);
+        // const mockData = getMockBlogData();
+        // setBlogs(mockData.blogs);
+        getMockBlogData().then((data) => setBlogs(data.blogs));
     }, []);
 
     //   useEffect(() => {

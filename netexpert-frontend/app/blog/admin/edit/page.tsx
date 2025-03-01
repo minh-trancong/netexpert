@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { createBlog, getBlogById, updateBlog } from '@/app/services/blogServices';
 
 export default function BlogEditPage() {
     const router = useRouter();
@@ -13,24 +14,45 @@ export default function BlogEditPage() {
 
     useEffect(() => {
         if (blogId) {
-            fetch(`/api/blogs/${blogId}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setTitle(data.title);
-                    setThumbnail(data.thumbnail);
-                    setContent(data.content);
-                });
+            // fetch(`/api/blogs/${blogId}`)
+            //     .then((res) => res.json())
+            //     .then((data) => {
+            //         setTitle(data.title);
+            //         setThumbnail(data.thumbnail);
+            //         setContent(data.content);
+            //     });
+            getBlogById(parseInt(blogId, 10)).then((data) => {
+                setTitle(data.title);
+                setThumbnail(data.thumbnail);
+                setContent(data.content);
+            });
         }
     }, [blogId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const method = blogId ? 'PUT' : 'POST';
-        await fetch(`/api/blogs${blogId ? `/${blogId}` : ''}`, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, thumbnail, content }),
-        });
+        // const method = blogId ? 'PUT' : 'POST';
+        // await fetch(`/api/blogs${blogId ? `/${blogId}` : ''}`, {
+        //     method,
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({ title, thumbnail, content }),
+        // });
+        if (blogId) {
+            updateBlog(parseInt(blogId, 10), { 
+                title,
+                thumbnail, 
+                content,
+                category: 'default' // or set the appropriate category value
+            });
+        }
+        else{
+            createBlog({
+                title,
+                thumbnail,
+                content,
+                category: 'default' // or set the appropriate category value
+            });
+        }
         router.push('/blog/admin');
     };
 
