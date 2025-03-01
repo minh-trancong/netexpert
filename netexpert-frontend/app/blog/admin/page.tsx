@@ -32,7 +32,7 @@ export default function AdminBlogPage() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Manage Blogs</h1>
-                <Link href="/admin/blogs/edit" className="px-4 py-2 bg-blue-500 text-white rounded">
+                <Link href="/blog/admin/edit" className="px-4 py-2 bg-blue-500 text-white rounded">
                     Create Blog
                 </Link>
             </div>
@@ -55,13 +55,13 @@ export default function AdminBlogPage() {
                                 />
                             </td>
                             <td className="border p-2">
-                                <Link href={`/admin/blogs/${blog.blog_id}`}>{blog.title}</Link>
+                                <Link href={`/blog/${blog.blog_id}`}>{blog.title}</Link>
                             </td>
                             <td className="p-2">
                                 <div className='flex space-x-2 justify-center'>
                                     <button
                                         onClick={() =>
-                                            router.push(`/admin/blogs/edit?id=${blog.blog_id}`)
+                                            router.push(`/blog/admin/edit?id=${blog.blog_id}`)
                                         }
                                         className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
                                     >
