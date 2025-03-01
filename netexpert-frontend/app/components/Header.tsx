@@ -19,6 +19,7 @@ const Header = () => {
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
+    setIsOpen(false);
   };
 
   const navs = [
