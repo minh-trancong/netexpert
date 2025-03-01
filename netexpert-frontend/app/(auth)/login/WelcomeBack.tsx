@@ -6,6 +6,7 @@ import React from 'react'
 import CryptoJS from 'crypto-js'
 import Link from 'next/link'
 import { authFetch } from '@/app/utils'
+import { getUser, signIn } from '@/app/services/services'
 
 const WelcomeBack = ({ handleSubmit }: { handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void }) => {
 
@@ -23,32 +24,22 @@ const WelcomeBack = ({ handleSubmit }: { handleSubmit: (e: React.FormEvent<HTMLF
           setSubmitOk(true);
 
           const token = localStorage.getItem('token');
-          fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              username: username,
-              password: CryptoJS.SHA256(password).toString(),
-            }),
-          })
-            .then((response) => {
-              if (response.status === 401) {
-                setSubmitOk(false);
-              } else if (response.status === 200) {
-                return response.json();
-              }
-              return { error: true };
-            })
+          signIn(username, password)
             .then((data) => {
               if (data.error) {
                 setSubmitOk(false);
               } else {
                 // Store the token in localStorage
-                localStorage.setItem('token', data.token);
-                handleSubmit(e);
+                localStorage.setItem('token', data);
+                getUser(username).then((user) => {
+                  console.log('User:', user);
+                  if (user) {
+                    localStorage.setItem('user_id', user.id);
+                    handleSubmit(e);
+                  }
+                }
+                ).catch((error) => {
+                });
               }
             })
             .catch((error) => {

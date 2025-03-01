@@ -128,7 +128,7 @@ const ChatID: React.FC = () => {
   const sendMessage = () => {
     if (!input.trim()) return;
 
-    const userMessage = {
+    const userMessage: MarkdownMessage = {
       from: "user",
       contenttype: "markdown",
       content: input.trim(),

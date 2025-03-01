@@ -11,6 +11,7 @@ import ConversationSvg from '../components/assets/ConversationSvg';
 import QuestionInCircleSvg from '../components/assets/QuestionInCircleSvg';
 import { authFetch } from '../utils';
 import { useRouter } from 'next/router';
+import { getResponse, startNewChat } from '../services/services';
 
 const Chat = () => {
   // const router = useRouter();
@@ -42,51 +43,26 @@ const Chat = () => {
         </div>
         <form className='flex py-1 px-5 justify-between items-center w-full rounded-3xl border border-solid border-[#49D5E2] bg-[rgba(228,245,249,0.50)] shadow-[4px_12px_8px_0px_rgba(0,0,0,0.25)]' onSubmit={(e) => {
           e.preventDefault();
-          authFetch('/api/chat/conversation', {
-            method: 'POST',
-          }).then((response) => {
-            if (response.status === 401) {
-            } else if (response.status === 200) {
-              return response.json();
-            }
-            return { error: true };
-          })
-          .then((data) => {
-            if (data.error) {
-            } else {
-              // Store the token in localStorage
-              console.log(data);
+          startNewChat((e.target as any).question.value)
+            .then((data) => {
+              if (data.error) {
+              } else {
+                // Store the token in localStorage
+                console.log(data);
 
-              authFetch('/api/chat/question', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  chatId: data.chatId,
-                  question: (e.target as any).question.value
-                }),
-              }).then(response => {
-                if (response.status === 401) {
-                }
-                else if (response.status === 200) {
-                  return response.json();
-                }
-              }).then(data => {
-                if (data.error) {
-                }
-                else {
-                  console.log(data);
-                  handleNavigation(data.chatId);
-                }
-              }).catch((error) => {
-                console.error('Error:', error);
-              });
-            }
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-          })
+                getResponse((e.target as any).question.value).then(respone => {
+                  {
+                    console.log(respone);
+                    handleNavigation(respone.id);
+                  }
+                }).catch((error) => {
+                  console.error('Error:', error);
+                });
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            })
 
         }}>
           <label className='flex justify-center items-center gap-2 p-2 w-full'>
