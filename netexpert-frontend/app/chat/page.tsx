@@ -26,7 +26,6 @@ const Chat = () => {
     console.log(chatId);
     // router.push(`/chat/${chatId}`);
     window.location.href = `/chat/${chatId}`;
-    // router.push(`/chat/${chatId}`);
   };
 
   return (
@@ -48,16 +47,11 @@ const Chat = () => {
               if (data.error) {
               } else {
                 // Store the token in localStorage
-                console.log(data);
-
-                getResponse((e.target as any).question.value).then(respone => {
-                  {
-                    console.log(respone);
-                    handleNavigation(respone.id);
-                  }
-                }).catch((error) => {
-                  console.error('Error:', error);
-                });
+                console.log('result start new chat',data, data['conversation_id']);
+                if (data['conversation_id']) {
+                  localStorage.setItem('conversation_id', data['conversation_id']);
+                  handleNavigation(data['conversation_id']);
+                }
               }
             })
             .catch((error) => {

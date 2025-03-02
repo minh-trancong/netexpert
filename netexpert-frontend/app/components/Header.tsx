@@ -13,12 +13,14 @@ const Header = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+      console.log('user', storedUser);
     }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
+    setIsOpen(false);
   };
 
   const navs = [

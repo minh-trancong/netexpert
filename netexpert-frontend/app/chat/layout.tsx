@@ -12,6 +12,7 @@ import SendButtonSvg from "../components/assets/SendButtonSvg";
 import { Menu, X } from "lucide-react";
 import { authFetch } from "../utils";
 import network from "@/public/assets/network.png";
+import { getUserConversations } from "../services/services";
 
 interface NestedChatLinks {
   timetitle: string;
@@ -55,6 +56,7 @@ const tmpTableData = [
 const layout = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [isRightOpen, setIsRightOpen] = useState(false);
+  const [conservations, setConservations] = useState<any[]>([]);
 
   const demoData: NestedChatLinks[] = [
     {
@@ -163,18 +165,21 @@ const layout = ({ children }: { children: React.ReactNode }) => {
     },
   ];
 
-  // useEffect(() => {
-  //   authFetch('/api/chats?limit=10').then((response) => {
-  //     if (response.status === 401) {
-  //       console.log('Unauthorized');
-  //     }
-  //   }).then((data) => {
-  //     console.log(data);
-  //   }).catch((error) => {
-  //     console.error('Error:', error);
-  //   });
-
-  // }, []);
+  useEffect(() => {
+    getUserConversations().then((data) => {
+      console.log("user conservation", data);
+      setConservations(data);
+    });
+    // authFetch('/api/chats?limit=10').then((response) => {
+    //   if (response.status === 401) {
+    //     console.log('Unauthorized');
+    //   }
+    // }).then((data) => {
+    //   console.log(data);
+    // }).catch((error) => {
+    //   console.error('Error:', error);
+    // });
+  }, []);
 
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden">
@@ -224,7 +229,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Chat Links */}
           <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-            {demoData.map((group, index) => (
+            {/* {demoData.map((group, index) => (
               <div key={index} className="mb-6">
                 <p className="text-white text-extra-small font-semibold mb-3">
                   {group.timetitle}
@@ -243,7 +248,20 @@ const layout = ({ children }: { children: React.ReactNode }) => {
                   ))}
                 </div>
               </div>
-            ))}
+            ))} */}
+            <div className="flex flex-col">
+              {conservations.map((cons, index) => (
+                <Link
+                  href={`chat/${cons.id}`}
+                  key={index}
+                  className="p-2 rounded-md cursor-pointer hover:bg-gray-700 transition-colors"
+                >
+                  <p className="text-white text-medium font-light capitalize">
+                    {"Chat " + cons.id}
+                  </p>
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Footer Links */}

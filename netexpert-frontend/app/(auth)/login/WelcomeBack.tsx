@@ -1,3 +1,4 @@
+"use client";
 import CheckboxSvg from "@/app/components/assets/CheckboxSvg";
 import EmailSvg from "@/app/components/assets/EmailSvg";
 import LockSvg from "@/app/components/assets/LockSvg";
