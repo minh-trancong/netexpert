@@ -43,6 +43,30 @@ export const getUser = async (username : string) => {
     }
 }
 
+//Udpate location cho user
+export const updateUser = async (locationId: number) => {
+    try{
+      const user_id = localStorage.getItem('user_id');
+      const response = await axios.put(`${API_URL}/users/${user_id}`, {locationId});
+      return response.data;
+    }
+    catch(error){
+        console.error('Error updating user:', error);
+        throw error;
+    }
+}
+
+// Lấy danh sách tỉnh
+export const getProvinces = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/location`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching provinces:', error);
+    throw error;
+  }
+};
+
 // Lấy danh sách người dùng
 export const getUsers = async () => {
     try {
