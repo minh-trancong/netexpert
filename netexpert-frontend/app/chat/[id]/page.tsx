@@ -2,7 +2,7 @@
 
 import React, { JSX, useRef, useContext } from "react";
 import ReactMarkdown from "react-markdown";
-import * as d3 from "d3";
+
 // import io from "socket.io-client";
 import SendButtonSvg from "@/app/components/assets/SendButtonSvg";
 import QuestionInCircleSvg from "@/app/components/assets/QuestionInCircleSvg";
@@ -78,7 +78,6 @@ const ChatID: React.FC = () => {
   const { setReportContent } = useContext(LayoutContext); // Use context
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const graphRefs = React.useRef<Map<number, SVGSVGElement>>(new Map());
 
   React.useEffect(() => {
     if (chatContainerRef.current) {
@@ -94,18 +93,6 @@ const ChatID: React.FC = () => {
     });
   }, []);
 
-  // React.useEffect(() => {
-  //   if (!mess) return;
-  //   mess.forEach((msg, idx) => {
-  //     if (msg.contenttype === "graph") {
-  //       const svgEl = graphRefs.current.get(idx);
-  //       if (svgEl) {
-  //         createGraph((msg as GraphMessage).content, svgEl);
-  //       }
-  //     }
-  //   });
-  // }, [mess]);
-
   const sendMessage = () => {
     if (!input.trim()) return;
 
@@ -120,144 +107,27 @@ const ChatID: React.FC = () => {
 
     // Show bot typing animation automatically
     setBotTyping(true);
-    console.log("user typing", input.trim());
 
     // Send message with chat ID
     getResponse(input.trim()).then((response) => {
-      console.log("response", response);
       setMessages((prev) => (prev ? [...prev, response] : response));
       setBotTyping(false);
 
       // Check for report attribute
       if (response.report) {
-        setReportContent(response.report);
+        setReportContent(response);
       }
     });
 
     setInput("");
   };
 
-  const openReportPanel = (content: string | null) => {
-    console.log("Open report panel");
+  const openReportPanel = (content : any) => {
+    console.log("Open report panel", content);
     setReportContent(content);
   }
 
-  const createGraph = (
-    content: GraphMessage["content"],
-    svgElement: SVGSVGElement | null
-  ) => {
-    if (!svgElement) return;
 
-    // Take width height
-    const boundingRect = svgElement.getBoundingClientRect();
-    const width = boundingRect.width;
-    const height = boundingRect.height;
-
-    // Prepare nodes and links
-    const nodes = content.nodes.map((node) => ({
-      id: node.id,
-      label: node.data.label,
-      image: node.data.image,
-      x: 0, // Add x property
-      y: 0, // Add y property
-    }));
-
-    const links = content.edges.map((edge) => ({
-      source: edge.source,
-      target: edge.target,
-    }));
-
-    // Clear previous SVG content
-    const svg = d3.select<SVGSVGElement, unknown>(svgElement);
-    svg.selectAll("*").remove();
-
-    // Create simulation
-    const simulation = d3
-      .forceSimulation(nodes)
-      .force(
-        "link",
-        d3
-          .forceLink(links)
-          .id((d: any) => d.id)
-          .distance(100)
-      )
-      .force("charge", d3.forceManyBody().strength(-300))
-      .force("center", d3.forceCenter(width / 2, height / 2));
-
-    // Create links
-    const link = svg
-      .append("g")
-      .attr("stroke", "#aaa")
-      .attr("strokeWidth", 2)
-      .selectAll("line")
-      .data(links)
-      .join("line");
-
-    // Create custom image nodes
-    const node = svg
-      .append("g")
-      .selectAll<SVGImageElement, any>("image")
-      .data(nodes)
-      .join("image")
-      .attr("xlink:href", (d: any) => d.image) // Set image URL
-      .attr("width", 40) // Adjust image size
-      .attr("height", 40)
-      .attr("x", -20) // Offset to center the image
-      .attr("y", -20)
-      .call(
-        d3
-          .drag<SVGImageElement, any>()
-          .on(
-            "start",
-            (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
-              if (!event.active) simulation.alphaTarget(0.3).restart();
-              d.fx = d.x;
-              d.fy = d.y;
-            }
-          )
-          .on(
-            "drag",
-            (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
-              d.fx = event.x;
-              d.fy = event.y;
-            }
-          )
-          .on(
-            "end",
-            (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
-              if (!event.active) simulation.alphaTarget(0);
-              d.fx = null;
-              d.fy = null;
-            }
-          )
-      );
-
-    node.append("title").text((d: any) => d.label); // Add tooltip to images
-
-    // Add labels
-    const label = svg
-      .append("g")
-      .selectAll<SVGTextElement, any>("text")
-      .data(nodes)
-      .join("text")
-      .attr("text-anchor", "middle")
-      .attr("dy", 25) // Position below the image
-      .attr("font-size", 12)
-      .text((d: any) => d.label);
-
-    // On each tick, update positions
-    simulation.on("tick", () => {
-      link
-        .attr("x1", (d: any) => (d.source as any).x)
-        .attr("y1", (d: any) => (d.source as any).y)
-        .attr("x2", (d: any) => (d.target as any).x)
-        .attr("y2", (d: any) => (d.target as any).y);
-
-      node.attr("x", (d: any) => d.x - 20).attr("y", (d: any) => d.y - 20);
-
-      label.attr("x", (d: any) => d.x).attr("y", (d: any) => d.y + 30);
-    });
-  };
 
   return (
     <div className="w-full h-full px-8 lg:px-10 2xl:px-20 max-md:p-4 flex flex-col justify-between items-center gap-16">
@@ -288,25 +158,11 @@ const ChatID: React.FC = () => {
                   >
                     <div className="w-fit max-w-[55%]">
                       <div className="gap-2 p-3 lg:py-6 lg:px-10 w-fit rounded-lg border border-[rgba(255,250,250,0.10)] bg-[rgba(255,255,255,0.20)] ">
-                        {/* {contentType === "graph" && (
-                          <div className=" aspect-square lg:aspect-video lg:h-[250px] 2xl:h-96 w-auto border rounded-lg">
-                            <svg
-                              ref={(el) => {
-                                if (el) {
-                                  graphRefs.current.set(idx, el);
-                                } else {
-                                  graphRefs.current.delete(idx);
-                                }
-                              }}
-                              style={{ width: "100%", height: "100%" }}
-                            />
-                          </div>
-                        )} */}
                         {contentType === "report" && (
                           <div>
                             <h1 className=" text-white">{msg.message}</h1>
                             <button
-                              onClick={() => openReportPanel(msg.report)}
+                              onClick={() => openReportPanel(msg)}
                               className=" text-blue-500 hover:text-blue-400 transition-colors duration-200 underline"
                             >
                               Check the report
