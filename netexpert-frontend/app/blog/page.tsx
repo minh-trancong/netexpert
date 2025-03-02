@@ -11,8 +11,11 @@ const Blog = () => {
   const [blogs, setBlogs] = useState<BlogItem[]>([]);
 
   useEffect(() => {
-    const mockData = getMockBlogData();
-    setBlogs(mockData.blogs);
+    const fetchData = async () => {
+      const mockData = await getMockBlogData();
+      setBlogs(mockData.blogs);
+    };
+    fetchData();
   }, []);
 
   const formatDate = (dateString: string) => {
@@ -26,7 +29,6 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
-      <Header />
       <div className="w-full py-20 px-10 bg-gradient-to-b from-[rgba(129,236,255,0.2)] to-transparent">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-h3 md:text-h1 font-bold text-white mb-6">
