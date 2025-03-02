@@ -30,7 +30,7 @@ const relatedArticles = [
     },
 ];
 
-export default function BlogPost({ params }: { params: { id: string } }) {
+export default function BlogPost() {
     return (
         <div>
             <div className="max-w-6xl mx-auto px-6 py-12">

@@ -170,14 +170,17 @@ export const getResponse = async (message: string) => {
 //Udpate location cho user
 export const updateUser = async (locationId: number) => {
   try {
-    let user = localStorage.getItem("user");
-    user = JSON.parse(user);
+    const userString = localStorage.getItem("user");
 
-    if (user && user.username) {
-      const response = await axios.put(`${API_URL}/users/${user.username}`, {
-        locationId,
-      });
-      return response.data;
+    if (userString) {
+      const parsedUser = JSON.parse(userString);
+
+      if (parsedUser && parsedUser.username) {
+        const response = await axios.put(`${API_URL}/users/${parsedUser.username}`, {
+          locationId,
+        });
+        return response.data;
+      }
     }
   } catch (error) {
     console.error("Error updating user:", error);
