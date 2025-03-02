@@ -1,4 +1,5 @@
 import type { BlogResponse } from "@/app/types/blog";
+import { getAllBlogs } from "../services/blogServices";
 
 // Import JSON data and assert its type
 const mockData = {
@@ -162,4 +163,32 @@ const transformBlogData = (): BlogResponse => ({
   })),
 });
 
-export const getMockBlogData = (): BlogResponse => transformBlogData();
+const newTransformBlogData = (data : {
+  category: string;
+  content: string;
+  created_at: string;
+  id: number;
+  thumbnail: string;
+  title: string;
+}[]): BlogResponse => ({
+  total: data.length,
+  page: 1,
+  limit: 100,
+  blogs: data.map((blog) => ({
+    blog_id: blog.id,
+    title: blog.title,
+    summary: blog.content,
+    created_at: blog.created_at,
+    // Use a data URL for placeholder images to avoid CORS issues
+    thumbnail:
+      blog.thumbnail ||
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='768' height='523' viewBox='0 0 768 523'%3E%3Crect width='100%25' height='100%25' fill='%2349D5E2'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='system-ui' font-size='24' fill='white'%3ENo Image%3C/text%3E%3C/svg%3E",
+    category: blog.category || "Uncategorized",
+  })),
+})
+
+
+export const getMockBlogData = async (): Promise<BlogResponse> => {
+  const data = await getAllBlogs();
+  return newTransformBlogData(data);
+}

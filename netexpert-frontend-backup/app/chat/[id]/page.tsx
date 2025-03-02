@@ -84,7 +84,8 @@ const sampleMessages: Message[] = [
               type: "custom",
               data: {
                 label: "Node 3",
-                image: "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg",
+                image:
+                  "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg",
               },
             },
           ],
@@ -140,7 +141,13 @@ const ChatID: React.FC = () => {
     // Create simulation
     const simulation = d3
       .forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id((d: any) => d.id).distance(100))
+      .force(
+        "link",
+        d3
+          .forceLink(links)
+          .id((d: any) => d.id)
+          .distance(100)
+      )
       .force("charge", d3.forceManyBody().strength(-300))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
@@ -148,7 +155,7 @@ const ChatID: React.FC = () => {
     const link = svg
       .append("g")
       .attr("stroke", "#aaa")
-      .attr("stroke-width", 2)
+      .attr("strokeWidth", 2)
       .selectAll("line")
       .data(links)
       .join("line");
@@ -167,20 +174,29 @@ const ChatID: React.FC = () => {
       .call(
         d3
           .drag<SVGImageElement, any>()
-          .on("start", (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-          })
-          .on("drag", (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
-            d.fx = event.x;
-            d.fy = event.y;
-          })
-          .on("end", (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-          })
+          .on(
+            "start",
+            (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
+              if (!event.active) simulation.alphaTarget(0.3).restart();
+              d.fx = d.x;
+              d.fy = d.y;
+            }
+          )
+          .on(
+            "drag",
+            (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
+              d.fx = event.x;
+              d.fy = event.y;
+            }
+          )
+          .on(
+            "end",
+            (event: d3.D3DragEvent<SVGImageElement, any, any>, d: any) => {
+              if (!event.active) simulation.alphaTarget(0);
+              d.fx = null;
+              d.fy = null;
+            }
+          )
       );
 
     node.append("title").text((d: any) => d.label); // Add tooltip to images
@@ -230,8 +246,9 @@ const ChatID: React.FC = () => {
               {message.messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`w-full flex ${msg.from === "user" ? "justify-end" : "justify-start"
-                    }`}
+                  className={`w-full flex ${
+                    msg.from === "user" ? "justify-end" : "justify-start"
+                  }`}
                 >
                   <div className="gap-2 py-6 px-10 rounded-lg border border-[rgba(255,250,250,0.10)] bg-[rgba(255,255,255,0.20)] w-full max-w-[75%]">
                     {msg.contenttype === "graph" && (
@@ -247,7 +264,6 @@ const ChatID: React.FC = () => {
                     {msg.contenttype === "markdown" && (
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     )}
-
                   </div>
                 </div>
               ))}
