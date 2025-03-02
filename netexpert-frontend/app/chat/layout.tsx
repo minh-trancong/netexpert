@@ -43,6 +43,53 @@ interface GraphData {
   }>;
 }
 
+const providerOptions = [
+  {
+    option: 1,
+    provider: "ABC Company",
+    estimatedCost: 450,
+    strengths:
+      "Excellent Balance Between Quality And Affordability, Specialized In Small Business Networks.",
+    specialty: "Small Business",
+    link: "ABC Company",
+  },
+  {
+    option: 2,
+    provider: "Budget Connect",
+    estimatedCost: 300,
+    strengths: "Low-Cost Solutions, Suitable For Basic Installations.",
+    specialty: "Basic Installations",
+    link: "Budget Connect",
+  },
+  {
+    option: 3,
+    provider: "Elite Network",
+    estimatedCost: 700,
+    strengths:
+      "Top-Tier Products And Services, Ideal For Businesses Prioritizing Performance And Scalability.",
+    specialty: "High-Performance And Scalable Solutions",
+    link: "Elite Network",
+  },
+];
+
+const userRequirements = {
+  location: {
+    name: "Gia Lai",
+    address:
+      "456 Nguyen Trai Street, Hoa Phu Commune, Chu Se District, Gia Lai Province",
+  },
+  requirements: [
+    { topic: "Area Size", value: "300 Square Meters" },
+    { topic: "Purpose", value: "Small Business Operations" },
+    {
+      topic: "Devices",
+      value: "15 Devices Including Laptops And Mobile Phone",
+    },
+    { topic: "Connection Type", value: "Satellite Internet" },
+    { topic: "Bandwidth Speed", value: "30 Mbps" },
+  ],
+};
+
 export const LayoutContext = createContext<{
   setReportContent: (content: string | null) => void;
 }>({ setReportContent: () => {} });
@@ -53,6 +100,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [isRightOpen, setIsRightOpen] = useState(false);
   const [conservations, setConservations] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState("location");
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const createGraph = (
@@ -178,6 +226,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   const handleCloseRightPanel = () => {
     setIsRightOpen(false);
     setReportContent(null);
+    setActiveTab('location');
   };
 
   useEffect(() => {
@@ -197,11 +246,149 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   }, [reportContent]);
 
   useEffect(() => {
-    if (networkData && svgRef.current) {
-      console.log(networkData);
+    if (networkData && svgRef.current && activeTab === "network") {
       createGraph(networkData, svgRef.current);
     }
-  }, [networkData]);
+  }, [networkData, activeTab]);
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "location":
+        return (
+          <div className="transition-opacity duration-500 ease-in-out opacity-100">
+            <h2 className="text-xl font-bold mb-4">Location & Requirements</h2>
+            <table className="w-full my-8 text-left text-gray-300">
+              <thead className="bg-blue-500 text-white">
+                <tr>
+                  <th className="border border-white p-2">Topic</th>
+                  <th className="border border-white p-2">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-gray-700 p-2">Location</td>
+                  <td className="border border-gray-700 p-2">
+                    {userRequirements.location.name}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-700 p-2">Address</td>
+                  <td className="border border-gray-700 p-2">
+                    {userRequirements.location.address}
+                  </td>
+                </tr>
+                {userRequirements.requirements.map((req, index) => (
+                  <tr key={index}>
+                    <td className="border border-gray-700 p-2">{req.topic}</td>
+                    <td className="border border-gray-700 p-2">{req.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      case "network":
+        return (
+          <div className="transition-opacity duration-500 ease-in-out opacity-100">
+            <h2 className="text-xl font-bold mb-4">
+              Network Diagram & List Equipments
+            </h2>
+            <table className="w-full my-8 text-left text-gray-300 ">
+              <thead className="bg-blue-500 text-white">
+                <tr>
+                  <th className="border border-white p-2">Device ID</th>
+                  <th className="border border-white p-2">Name</th>
+                  <th className="border border-white p-2">Type</th>
+                  <th className="border border-white p-2">Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {networkData?.networks[0].devices.map((device, index) => (
+                  <tr key={index}>
+                    <td className="border border-gray-700 p-2">{device.id}</td>
+                    <td className="border border-gray-700 p-2">
+                      {device.name}
+                    </td>
+                    <td className="border border-gray-700 p-2">
+                      {device.device_type}
+                    </td>
+                    <td className="border border-gray-700 p-2">
+                      {device.quantity}
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td className="border border-gray-700 p-2" colSpan={3}>
+                    Total Cost
+                  </td>
+                  <td className="border border-gray-700 p-2">
+                    ${networkData?.networks[0].cost}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            {reportContent.report && (
+              <div>
+                <ReactMarkdown>{reportContent.report}</ReactMarkdown>
+              </div>
+            )}
+
+            <svg ref={svgRef} style={{ width: "100%", height: "400px" }} />
+          </div>
+        );
+      case "retailers":
+        return (
+          <div className="transition-opacity duration-500 ease-in-out opacity-100">
+            <h2 className="text-xl font-bold mb-4">Retailers and Links</h2>
+            <table className="w-full my-8 text-left text-gray-300">
+              <thead className="bg-blue-500 text-white">
+                <tr>
+                  <th className="border border-white p-2">Option</th>
+                  <th className="border border-white p-2">Provider</th>
+                  <th className="border border-white p-2">Estimated Cost</th>
+                  <th className="border border-white p-2">Strengths</th>
+                  <th className="border border-white p-2">Specialty</th>
+                  <th className="border border-white p-2">Link</th>
+                </tr>
+              </thead>
+              <tbody>
+                {providerOptions.map((option, index) => (
+                  <tr key={index}>
+                    <td className="border border-gray-700 p-2">
+                      {option.option}
+                    </td>
+                    <td className="border border-gray-700 p-2">
+                      {option.provider}
+                    </td>
+                    <td className="border border-gray-700 p-2">
+                      ${option.estimatedCost}
+                    </td>
+                    <td className="border border-gray-700 p-2">
+                      {option.strengths}
+                    </td>
+                    <td className="border border-gray-700 p-2">
+                      {option.specialty}
+                    </td>
+                    <td className="border border-gray-700 p-2">
+                      <a
+                        href={option.link}
+                        target="_blank"
+                        className="text-blue-500 underline"
+                      >
+                        {option.link}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <LayoutContext.Provider value={{ setReportContent }}>
@@ -337,57 +524,42 @@ const layout = ({ children }: { children: React.ReactNode }) => {
                 </button>
 
                 <div className="text-white px-12 py-8">
-                  <table className="w-full my-8 text-left text-gray-300 ">
-                    <thead className="bg-blue-500 text-white">
-                      <tr>
-                        <th className="border border-white p-2">Device ID</th>
-                        <th className="border border-white p-2">Name</th>
-                        <th className="border border-white p-2">Type</th>
-                        <th className="border border-white p-2">Quantity</th>
-                        {/* <th className="border border-white p-2">Cost</th> */}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {networkData?.networks[0].devices.map((device, index) => (
-                        <tr key={index}>
-                          <td className="border border-gray-700 p-2">
-                            {device.id}
-                          </td>
-                          <td className="border border-gray-700 p-2">
-                            {device.name}
-                          </td>
-                          <td className="border border-gray-700 p-2">
-                            {device.device_type}
-                          </td>
-                          <td className="border border-gray-700 p-2">
-                            {device.quantity}
-                          </td>
-                          {/* <td className="border border-gray-700 p-2">
-                            ${device.quantity * device.cost}
-                          </td> */}
-                        </tr>
-                      ))}
-                      <tr>
-                        <td className="border border-gray-700 p-2" colSpan={3}>
-                          Total Cost
-                        </td>
-                        <td className="border border-gray-700 p-2">
-                          ${networkData?.networks[0].cost}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <div className="flex gap-4 mb-8">
+                    <button
+                      className={`p-2 rounded-md ${
+                        activeTab === "location"
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-700 text-gray-300"
+                      }`}
+                      onClick={() => setActiveTab("location")}
+                    >
+                      Location & Requirements
+                    </button>
+                    <button
+                      className={`p-2 rounded-md ${
+                        activeTab === "network"
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-700 text-gray-300"
+                      }`}
+                      onClick={() => setActiveTab("network")}
+                    >
+                      Network Diagram & List Equipments
+                    </button>
+                    <button
+                      className={`p-2 rounded-md ${
+                        activeTab === "retailers"
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-700 text-gray-300"
+                      }`}
+                      onClick={() => setActiveTab("retailers")}
+                    >
+                      Retailers and Links
+                    </button>
+                  </div>
 
-                  {reportContent.report && (
-                    <div>
-                      <ReactMarkdown>{reportContent.report}</ReactMarkdown>
-                    </div>
-                  )}
-
-                  <svg
-                    ref={svgRef}
-                    style={{ width: "100%", height: "400px" }}
-                  />
+                  <div className="transition-all duration-500 ease-in-out">
+                    {renderTabContent()}
+                  </div>
                 </div>
               </div>
             )}
