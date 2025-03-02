@@ -1,6 +1,6 @@
 "use client";
 
-import React, { JSX, useRef } from "react";
+import React, { JSX, useRef, useContext } from "react";
 import ReactMarkdown from "react-markdown";
 import * as d3 from "d3";
 // import io from "socket.io-client";
@@ -17,6 +17,7 @@ import { useParams } from "next/navigation";
 import { getChatHistory, getResponse } from "@/app/services/services";
 
 import messageData from "@/app/data/messageData.json";
+import { LayoutContext } from "@/app/chat/layout"; // Import context
 
 // const socket = io("http://localhost:4000");
 
@@ -74,6 +75,7 @@ const ChatID: React.FC = () => {
   const params = useParams();
   const conservation_id = params["id"] as string;
   const user_id = localStorage.getItem("user_id") || "";
+  const { setReportContent } = useContext(LayoutContext); // Use context
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const graphRefs = React.useRef<Map<number, SVGSVGElement>>(new Map());
@@ -125,10 +127,20 @@ const ChatID: React.FC = () => {
       console.log("response", response);
       setMessages((prev) => (prev ? [...prev, response] : response));
       setBotTyping(false);
+
+      // Check for report attribute
+      if (response.report) {
+        setReportContent(response.report);
+      }
     });
 
     setInput("");
   };
+
+  const openReportPanel = (content: string | null) => {
+    console.log("Open report panel");
+    setReportContent(content);
+  }
 
   const createGraph = (
     content: GraphMessage["content"],
@@ -252,13 +264,13 @@ const ChatID: React.FC = () => {
       <div className="w-full h-screen flex flex-col overflow-hidden pb-12">
         <div
           ref={chatContainerRef}
-          className="w-full overflow-auto scrollbar-none flex flex-col gap-9 pt-8"
+          className="w-full h-full overflow-auto scrollbar-none flex flex-col gap-9 pt-8"
         >
           {/* {messages.map((message, index) => ( */}
           <React.Fragment>
             {mess &&
               mess.map((msg, idx) => {
-                let contentType = "graph";
+                let contentType = "report";
                 if (msg.networks === undefined || msg.networks.length == 0) {
                   contentType = "markdown";
                 }
@@ -276,7 +288,7 @@ const ChatID: React.FC = () => {
                   >
                     <div className="w-fit max-w-[55%]">
                       <div className="gap-2 p-3 lg:py-6 lg:px-10 w-fit rounded-lg border border-[rgba(255,250,250,0.10)] bg-[rgba(255,255,255,0.20)] ">
-                        {contentType === "graph" && (
+                        {/* {contentType === "graph" && (
                           <div className=" aspect-square lg:aspect-video lg:h-[250px] 2xl:h-96 w-auto border rounded-lg">
                             <svg
                               ref={(el) => {
@@ -288,6 +300,17 @@ const ChatID: React.FC = () => {
                               }}
                               style={{ width: "100%", height: "100%" }}
                             />
+                          </div>
+                        )} */}
+                        {contentType === "report" && (
+                          <div>
+                            <h1 className=" text-white">{msg.message}</h1>
+                            <button
+                              onClick={() => openReportPanel(msg.report)}
+                              className=" text-blue-500 hover:text-blue-400 transition-colors duration-200 underline"
+                            >
+                              Check the report
+                            </button>
                           </div>
                         )}
                         {contentType === "markdown" && (
