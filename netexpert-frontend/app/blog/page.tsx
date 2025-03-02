@@ -11,8 +11,11 @@ const Blog = () => {
   const [blogs, setBlogs] = useState<BlogItem[]>([]);
 
   useEffect(() => {
-    const mockData = getMockBlogData();
-    setBlogs(mockData.blogs);
+    const fetchData = async () => {
+      const mockData = await getMockBlogData();
+      setBlogs(mockData.blogs);
+    };
+    fetchData();
   }, []);
 
   const formatDate = (dateString: string) => {
