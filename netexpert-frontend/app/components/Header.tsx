@@ -72,7 +72,7 @@ const Header = () => {
           {isOpen && (
             <div className="absolute right-0 top-12 z-40 bg-white text-black shadow-lg rounded-lg py-2 w-40 border border-gray-200">
               <Link
-                href="/profile"
+                href="/user"
                 className="block px-4 py-2 hover:bg-gray-100"
               >
                 Profile
