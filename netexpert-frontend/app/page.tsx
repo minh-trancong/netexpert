@@ -4,7 +4,7 @@ import SendButtonSvg from "./components/assets/SendButtonSvg";
 
 export default function Home() {
   return (
-    <div className="flex w-screen h-screen flex-col justify-center bg-[url('/assets/Homepage.png')] bg-cover bg-center bg-no-repeat bg-lightgray">
+    <div className="flex w-screen h-screen flex-col justify-center bg-[url('/assets/background_2.jpg')] bg-cover bg-center bg-no-repeat bg-black">
       <Header />
       <div className="w-full h-full flex py-0 px-20 flex-start flex-col justify-center gap-10">
         <div className="flex w-1/2 flex-col flex-start gap-5">
@@ -22,7 +22,7 @@ export default function Home() {
         </div>
         <div className="flex w-fit py-2 px-6 justify-center items-center gap-[52px] rounded-[20px] border border-[#95F1F4] bg-[rgba(5,197,245,0.5)] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
           <p className="text-large font-medium text-[#F2F2F2]">
-            How can I help you 
+            How can I help you
           </p>
           <SendButtonSvg className="w-6 h-6 flex-shrink-0"/>
         </div>
